@@ -1,0 +1,20 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+    <form action="/registration" class="registr">
+        <p><label>
+                <input type="text" name="'username" value="Имя" required/>
+            </label>
+        </p>
+        <p><label>
+                <input type="text" name="'username" value="Email" required/>
+            </label>
+        </p>
+        <p><label>
+                <input type="text" name="'username" value="Пароль" required/>
+            </label>
+        </p>
+        <p>
+            <input type="submit" value="Отправить"/>
+        </p>
+    </form>
+{% endblock %}

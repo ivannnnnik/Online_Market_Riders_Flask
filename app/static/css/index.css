@@ -1,0 +1,47 @@
+body{
+    background-color: #b4e6ff;
+}
+
+
+.logo {
+    float: left;
+}
+
+nav {
+    float: inherit;
+}
+
+.search-input {
+    float: inherit;
+    height: 25px;
+    font-weight: normal;
+    margin: 5px;
+}
+
+nav ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+nav li {
+    display: inline-block; /*один из способов разместить элементы в строку*/
+}
+
+.container:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.container {
+    width: 100%;
+    padding: 15px;
+    margin: 0 auto;
+    background-color: #86989B;
+}
+
+nav a {
+    text-decoration: none;
+    line-height: 38px;
+}
