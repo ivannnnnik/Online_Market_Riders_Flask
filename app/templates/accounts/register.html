@@ -1,17 +1,18 @@
 {% extends "layouts/base.html" %}
+
 {% block content %}
     <form action="/registration" class="registr">
-        <p><label>
-                <input type="text" name="'username" value="Имя" required/>
-            </label>
+        <p><label>Имя:
+            <input type="text" name="username" required/>
+        </label>
         </p>
-        <p><label>
-                <input type="text" name="'username" value="Email" required/>
-            </label>
+        <p><label>Email:
+            <input type="email" name="email" required/>
+        </label>
         </p>
-        <p><label>
-                <input type="text" name="'username" value="Пароль" required/>
-            </label>
+        <p><label>Пароль:
+            <input type="password" name="password" minlength="8" required/>
+        </label>
         </p>
         <p>
             <input type="submit" value="Отправить"/>
