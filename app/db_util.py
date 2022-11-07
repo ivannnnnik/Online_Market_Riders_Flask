@@ -1,5 +1,7 @@
 import psycopg2
 from werkzeug.security import generate_password_hash, check_password_hash
+from psycopg2.extras import RealDictCursor
+import psycopg2.errors
 
 class Database:
     def __init__(self):
@@ -10,14 +12,14 @@ class Database:
             host="localhost",
             port=5432
         )
-        self.cur = self.con.cursor()
+        self.cur = self.con.cursor(cursor_factory=RealDictCursor)
 
     def create_user(self, user_name, email, password):
         role = 'client'
         self.cur.execute(f"SELECT count(email) as count_email FROM users WHERE email='{email}'")
         result = self.cur.fetchall()
         print(result)
-        if result[0][0] > 0:
+        if result[0]['count_email'] > 0:
             return False
 
         query = f"INSERT INTO users (name, email, password, role) VALUES ('{user_name}','{email}','{password}','{role}')"
@@ -30,35 +32,32 @@ class Database:
         self.cur.execute(query)
         result = self.cur.fetchall()
         if result:
-            data = self.prepare_data(self.cur.fetchall())
-
-            if len(data) == 1:
-                data = data[0]
-
-            return data
+            return result
         else:
             print('Пользователь не найден!')
             return False
 
-    def is_authenticated(self, email, password):
-        self.cur.execute(f"SELECT email, password  FROM users WHERE email='{email}'")
+    def get_user_by_email(self, user_email):
+        self.cur.execute(f"SELECT * FROM users WHERE email=%s LIMIT 1", (user_email,))
         result = self.cur.fetchall()
-        print(result)
-        if not result:
-            return False
-        email_user = result[0][0]
-        pass_user = result[0][1]
-        if email_user and email_user == email:
-            if check_password_hash(pass_user, password):
-                return True
-            else:
-                return False
+        if result:
+            return result
         else:
+            print('Пользователь не найден!')
             return False
 
-    def update_role(self, user_id):
-        role = 'admin'
+    def create_product(self):
         pass
+
+    def update_role(self, user_email):
+        try:
+            role_admin = 'admin'
+            self.cur.execute("UPDATE users SET role=%s WHERE email=%s", (role_admin, user_email))
+            print(f'Статус пользователя {user_email}: {role_admin}')
+            self.con.commit()
+            return True
+        except Exception as err:
+            print("cursor.execute() ERROR:", err)
 
     def insert(self, query):
         self.cur.execute(query)
@@ -67,19 +66,8 @@ class Database:
 
     def select(self, query):
         self.cur.execute(query)
-        data = self.prepare_data(self.cur.fetchall())
+        return query
 
-        if len(data) == 1:
-            data = data[0]
 
-        return data
-
-    # --> JSON
-    def prepare_data(self, data):
-        films = []
-        if len(data):
-            column_names = [desc[0] for desc in self.cur.description]
-            for row in data:
-                films += [{c_name: row[key] for key, c_name in enumerate(column_names)}]
-
-        return films
+a = Database()
+a.update_role('admin@mail.ru')
