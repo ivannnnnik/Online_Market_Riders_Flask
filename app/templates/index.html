@@ -1,7 +1,9 @@
 {% extends "layouts/base.html" %}
-<p>{{ title }}</p>
 {% block content %}
     <div class="products-view">
-        <p>Здесь будут товары!</p>
+        <p>Здесь буdлут товары !</p>
     </div>
+    {% if status %}
+        <p>{{ status }}</p>
+    {% endif %}
 {% endblock %}
