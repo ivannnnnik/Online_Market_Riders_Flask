@@ -29,8 +29,10 @@
                     <li><a href="/profile">Профиль</a></li>
                     <li><a href="/cart">Корзина</a></li>
                     <li><a href="/favourite">Избранное</a></li>
-                    <li><a href="/new_product">Создать новый товар</a></li>
                     <li><a href="/logout">Выход</a></li>
+                    {% if current_user.is_admin() %}
+                        <li><a href="/new_product">Создать новый товар</a></li>
+                    {% endif %}
                 {% else %}
                     <li><a href="/authorization">Вход</a></li>
                     <li><a href="/registration">Регистрация</a></li>

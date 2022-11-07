@@ -28,9 +28,7 @@ def load_user(user_id):
 
 @app.route('/')
 def index():
-    is_auth = current_user.is_authenticated
-    print(is_auth)
-    return render_template('index.html', is_auth=is_auth)
+    return render_template('index.html')
 
 
 @app.route('/registration', methods=['POST', 'GET'])
