@@ -78,6 +78,14 @@ def login():
     return render_template('accounts/login.html', form=form)
 
 
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('Вы вышли из аккаунта !')
+    return render_template('index.html')
+
+
 @app.route('/new_product')
 @login_required
 def new_product():
@@ -96,7 +104,13 @@ def cart_user():
 
 @app.route('/profile')
 def profile_user():
-    return render_template('profile.html')
+    user_id = current_user.get_id()
+    user_data = db.get_user(user_id)[0]
+    context = {
+        'username': user_data['name'],
+        'email': user_data['email']
+    }
+    return render_template('profile.html', context=context)
 
 
 @app.errorhandler(404)
