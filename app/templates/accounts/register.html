@@ -5,9 +5,10 @@
         <p>{{ status }}</p>
     {% endif %}
     <form action="/registration" method="post" class="registr">
-        <label>Имя: {{ form.username }}</label>
-        <label>Email: {{ form.email }}</label>
-        <label>Пароль: {{ form.password }}</label>
+        {{ form.hidden_tag() }}
+        <label>{{ form.username.label }} {{ form.username }}</label>
+        <label>{{ form.email.label }} {{ form.email }}</label>
+        <label>{{ form.password.label }} {{ form.password }}</label>
         <label>{{ form.submit }}</label>
     </form>
 {% endblock %}

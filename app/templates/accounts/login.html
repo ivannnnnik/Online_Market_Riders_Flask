@@ -5,8 +5,21 @@
         <p>{{ status }}</p>
     {% endif %}
     <form action="/authorization" method="post" class="auth">
-        <label>Email: {{ form.email }}</label>
-        <label>Пароль: {{ form.password }}</label>
+        {{ form.hidden_tag() }}
+        {% for f in form if f.name not in ['csrf_token', 'remember', 'submit'] -%}
+            <label>{{ f.label() }}</label>
+            {% if f.errors %}
+                {{ f(class='invalid') }}
+            <span class="invalid-message">
+                {% for error in f.errors %}
+                    {{ error }}
+                {% endfor %}
+            </span>
+            {% else %}
+                {{ f() }}
+            {% endif %}
+        {% endfor %}
+        <label>{{ form.remember.label }} {{ form.remember }}</label>
         <label>{{ form.submit }}</label>
     </form>
 {% endblock %}
