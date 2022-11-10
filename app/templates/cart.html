@@ -1,1 +1,135 @@
 {% extends 'layouts/base.html' %}
+{% block content %}
+    {% if status %}
+        <p>{{ status }}</p>
+    {% endif %}
+    {% if products %}
+        {% for product in products %}
+            <div class="product-view-class" id="product-view-class-{{ product.id }}">
+                <div class="product-view"
+                     onclick="location.href = '{{ url_for("get_product", product_id=product.id) }}'">
+                    <p>{{ product.name }}</p>
+                    <p>{{ product.price }}</p>
+                    <img class="product-photo" src="{{ product.photo }}" width="50%"
+                         height="auto">
+                </div>
+                <label
+                <p><input id="btn-in-cart-{{ product.id }}" onclick="AddInOrder({{ product.price }}, {{ product.id }})"
+                          type="checkbox" checked></p>
+                <p><input id="btn-del-cart" onclick="DelInCart({{ product.id }}, {{ product.price }})" type="button" value="Удалить"></p>
+                <p><input id="btn-del-fav" onclick="AddInFav({{ product.id }})" type="button" value="В избранное"></p>
+                <p><input id="btn-count-+" onclick="CorCount({{ product.id }}, {{ product.price }}, true)" type="button"
+                          value="+"></p>
+                <p>Количество: </p>
+                <p id="count-product-{{ product.id }}">1</p>
+                <p><input id="btn-count--" onclick="CorCount({{ product.id }}, {{ product.price }}, false)"
+                          type="button" value="-"></p>
+            </div>
+        {% endfor %}
+        <div class="price" id="price-order">
+            <p>Общая стоимость: </p>
+            <p id="final-cart-price">{{ final_price }}</p>
+        </div>
+        <div class="create-order">
+             <p><input id="" onclick="" type="button" value="Сформировать заказ"></p>
+        </div>
+    {% endif %}
+    <script>
+        function CorOrder(product_id, product_price, status) {
+
+        }
+
+        function CorCount(product_id, product_price, status) {
+            let pathcount = 'count-product-' + product_id;
+            let pathbtn = 'btn-in-cart-' + product_id;
+            let btnincart = document.getElementById(pathbtn)
+            let countprod = Number(document.getElementById(pathcount).innerText);
+            let finalprice = Number($("#final-cart-price").html());
+            let productprice = Number(product_price);
+
+            if (status == true) {
+                countprod += 1;
+                document.getElementById(pathcount).innerHTML = countprod;
+                console.log(btnincart.checked)
+                finalprice += productprice;
+                if (btnincart.checked == true) {
+                    document.getElementById('final-cart-price').innerHTML = finalprice;
+                }
+
+            }
+            if (status == false) {
+                if (countprod == 1) {
+                    countprod = 1;
+                } else {
+                    countprod -= 1;
+                    finalprice -= productprice;
+                    document.getElementById(pathcount).innerHTML = countprod;
+                    if (btnincart.checked == true) {
+                        document.getElementById('final-cart-price').innerHTML = finalprice;
+                    }
+                }
+            }
+
+        }
+
+        function AddInOrder(product_price, product_id) {
+            let pathbtn = 'btn-in-cart-' + product_id;
+            let pathcount = 'count-product-' + product_id;
+            let btnincart = document.getElementById(pathbtn);
+            let countprod = Number(document.getElementById(pathcount).innerText);
+            let finalprice = Number($("#final-cart-price").html());
+            let productprice = Number(product_price) * countprod;
+            if (btnincart.checked == true) {
+                finalprice += productprice;
+                document.getElementById('final-cart-price').innerHTML = finalprice;
+            }
+            if (btnincart.checked == false) {
+                finalprice -= productprice;
+                document.getElementById('final-cart-price').innerHTML = finalprice;
+            }
+        }
+
+        function DelInCart(product_id, product_price) {
+            let pathcount = 'count-product-' + product_id;
+            let countprod = Number(document.getElementById(pathcount).innerText);
+            let finalprice = Number($("#final-cart-price").html());
+            let productprice = Number(product_price) * countprod;
+            finalprice -= productprice
+            document.getElementById('final-cart-price').innerHTML = finalprice;
+            let data = {}
+            data.product_id = product_id
+            console.log(data.product_id);
+            $.ajax({
+                url: '{{ url_for('del_product_in_cart') }}', // добавляем url, откуда будем брать данные
+                method: 'get', // указываем метод
+                dataType: 'html', // тип данных
+                data: data, // данные запроса (в данном случае, там находятся GET-параметры)
+                // функция, которая вызывается при успешном получении данных
+                success: function (data) {
+                    data = JSON.parse(data)
+                    $(data['id']).html('')
+                }
+            })
+        }
+
+        function AddInFav(product_id) {
+            let data = {}
+            data.product_id = product_id
+            console.log(data.product_id);
+            $.ajax({
+                url: '{{ url_for('add_in_fav_product') }}', // добавляем url, откуда будем брать данные
+                method: 'get', // указываем метод
+                dataType: 'html', // тип данных
+                data: data, // данные запроса (в данном случае, там находятся GET-параметры)
+                // функция, которая вызывается при успешном получении данных
+                success: function (data) {
+                    data = JSON.parse(data)
+                    if (data['response'] == false) {
+                        alert('Товар уже в избранном !')
+                    }
+                }
+            })
+        }
+
+    </script>
+{% endblock %}
