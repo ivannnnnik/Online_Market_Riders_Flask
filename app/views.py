@@ -180,6 +180,82 @@ def profile_user():
     return render_template('profile.html', context=context)
 
 
+@app.route("/add_in_cart", methods=['GET', 'POST'])
+def add_in_cart_product():
+    if request.method == 'GET':
+        print(request.args)
+        product_id = int(request.args['product_id'])
+        user_id = current_user.get_id()
+        if user_id:
+            status = db.add_product_in_cart(user_id, product_id)
+            if status:
+                data = {'response': True}
+                return data
+            else:
+                data = {'response': False}
+                return data
+        else:
+            data = {'response': 'Not auth'}
+            return data
+
+
+
+@app.route("/add_in_fav", methods=['GET', 'POST'])
+def add_in_fav_product():
+    if request.method == 'GET':
+        print(request.args)
+        product_id = int(request.args['product_id'])
+        user_id = current_user.get_id()
+        if user_id:
+            print(user_id)
+            status = db.add_product_in_favourite(user_id, product_id)
+            if status:
+                data = {'response': True}
+                return data
+            else:
+                data = {'response': False}
+                return data
+        else:
+            data = {'response': 'Not auth'}
+            return data
+
+
+@app.route("/del_in_cart", methods=['GET', 'POST'])
+def del_product_in_cart():
+    if request.method == 'GET':
+        print(request.args)
+        product_id = int(request.args['product_id'])
+        user_id = current_user.get_id()
+        status = db.del_product_in_cart(user_id, product_id)
+        if status:
+            data = {
+                'response': True,
+                'id': f'#product-view-class-{product_id}'
+            }
+            return data
+        else:
+            data = {'response': False}
+            return data
+
+
+@app.route("/del_in_fav", methods=['GET', 'POST'])
+def del_product_in_favourite():
+    if request.method == 'GET':
+        print(request.args)
+        product_id = int(request.args['product_id'])
+        user_id = current_user.get_id()
+        status = db.del_product_in_favourite(user_id, product_id)
+        if status:
+            data = {
+                'response': True,
+                'id': f'#product-view-class-{product_id}',
+            }
+            return data
+        else:
+            data = {'response': False}
+            return data
+
+
 @app.errorhandler(404)
 def pageNotFound(error):
     return render_template('page404.html', title='Страница не найдена !')
