@@ -103,10 +103,35 @@ def logout():
     return render_template('index.html')
 
 
-@app.route('/new_product')
+@app.route('/new_product', methods=['POST', 'GET'])
 @login_required
 def new_product():
-    return render_template('new_product.html')
+    form = forms.CreateProduct()
+    if form.validate_on_submit():
+        name = form.name.data
+        text = form.text.data
+        price = form.price.data
+        count = form.count.data
+        type_product = form.type_product.data
+        user_id = current_user.get_id()
+        photo = form.photo.data
+        filename = secure_filename(photo.filename)
+        img_id = db.last_id()
+        photo.save(os.path.join(
+            app.root_path, 'static\img', f'{img_id}.{filename}'))
+
+        photo_path = os.path.join('static\img', f'{img_id}.{filename}')
+
+        result = db.create_product(name, text, price, user_id, count, type_product, photo_path)
+        if result:
+            status = f'Товар {name} создан !'
+            return render_template('new_product.html', status=status)
+        else:
+            if result is False:
+                status = 'Произошла ошибка'
+                return render_template('new_product.html', form=form, status=status)
+
+    return render_template('new_product.html', form=form)
 
 
 @app.route('/favourite')
