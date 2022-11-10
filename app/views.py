@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-
+import json
 
 from flask import render_template, request, redirect, url_for, flash
 from jinja2 import TemplateNotFound
@@ -7,9 +7,11 @@ from app import app
 from app import db_util
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import forms
-
+from PIL import Image
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from app.UserLogin import UserLogin
+import os
+from werkzeug.utils import secure_filename
 
 db = db_util.Database()
 login_manager = LoginManager(app)
@@ -28,7 +30,17 @@ def load_user(user_id):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    products = db.get_products_all()
+    if products:
+        context = {
+            'products': products,
+            'count_products': len(products)
+
+        }
+        print(products)
+        return render_template('index.html', **context)
+    else:
+        return render_template('index.html')
 
 
 @app.route('/registration', methods=['POST', 'GET'])
