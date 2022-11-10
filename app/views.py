@@ -43,6 +43,13 @@ def index():
         return render_template('index.html')
 
 
+@app.route('/product/<int:product_id>')
+def get_product(product_id):
+    products = db.get_product_by_id(product_id)[0]
+    print(products)
+    return render_template('product.html', product=products)
+
+
 @app.route('/registration', methods=['POST', 'GET'])
 def register():
     form = forms.RegistrForm()
