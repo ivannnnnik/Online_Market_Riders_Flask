@@ -44,3 +44,16 @@ nav a {
     text-decoration: none;
     line-height: 38px;
 }
+
+div.product-view {
+    background-color: aquamarine;
+    border: 1px solid #000;
+    margin: 10px;
+    width: 400px;
+    padding: 10px;
+}
+
+img.product-photo {
+    width: 50%;
+    height: auto;
+}
