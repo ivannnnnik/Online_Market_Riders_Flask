@@ -1,0 +1,10 @@
+{% extends 'layouts/base.html' %}
+{% block content %}
+    <div class="product-view">
+        <p>{{ product.name }}</p>
+        <p>{{ product.created_at }}</p>
+        <p>{{ product.price }}</p>
+        <p>{{ product.count }}</p>
+        <p>{{ product.type }}</p>
+    </div>
+{% endblock %}
