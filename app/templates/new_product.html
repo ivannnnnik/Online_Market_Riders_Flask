@@ -1,1 +1,25 @@
 {% extends 'layouts/base.html' %}
+{% block content %}
+    {% if status %}
+        <p>{{ status }}</p>
+    {% endif %}
+    {% if form %}
+        <form action="/new_product" method="post" class="new_prod" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            {% for f in form if f.name not in ['csrf_token', 'submit'] -%}
+                <label>{{ f.label() }}</label>
+                {% if f.errors %}
+                    {{ f(class='invalid') }}
+                <span class="invalid-message">
+                    {% for error in f.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </span>
+                {% else %}
+                    {{ f() }}
+                {% endif %}
+            {% endfor %}
+            <label>{{ form.submit }}</label>
+        </form>
+    {% endif %}
+{% endblock %}
