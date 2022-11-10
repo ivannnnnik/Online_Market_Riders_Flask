@@ -194,6 +194,15 @@ class Database:
         self.cur.execute(query)
         return query
 
+    def prepare_data(self, data):
+        output_data = []
+        if len(data):
+            column_names = [desc[0] for desc in self.cur.description]
+            for row in data:
+                output_data += [{c_name: row[key] for key, c_name in enumerate(column_names)}]
+
+        return output_data
+
 
 a = Database()
-a.update_role('admin@mail.ru')
+print(a.user_cart(22))
