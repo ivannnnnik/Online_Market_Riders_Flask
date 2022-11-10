@@ -135,8 +135,20 @@ def new_product():
 
 
 @app.route('/favourite')
+@login_required
 def favourite_user():
-    return render_template('favourite.html')
+    user_id = current_user.get_id()
+    user_fav_products = db.user_favourites(user_id)
+    status = 'В избранном ничего нет !'
+    if user_fav_products:
+        context = {
+            'products': user_fav_products,
+            'count_products': len(user_fav_products)
+        }
+        print(user_fav_products)
+        return render_template('favourite.html', **context)
+    else:
+        return render_template('favourite.html', status=status)
 
 
 @app.route('/cart')
