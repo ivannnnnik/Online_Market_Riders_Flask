@@ -152,8 +152,21 @@ def favourite_user():
 
 
 @app.route('/cart')
+@login_required
 def cart_user():
-    return render_template('cart.html')
+    user_id = current_user.get_id()
+    user_cart_products = db.user_cart(user_id)
+    status = 'Ваша корзина пуста !'
+    if user_cart_products:
+        final_price = db.final_price_cart(user_cart_products)
+        context = {
+            'products': user_cart_products,
+            'final_price': final_price
+        }
+        print(user_cart_products)
+        return render_template('cart.html', **context)
+    else:
+        return render_template('cart.html', status=status)
 
 
 @app.route('/profile')
