@@ -1,8 +1,70 @@
 {% extends "layouts/base.html" %}
 {% block content %}
-    <div class="products-view">
-        <p>Здесь буdлут товары !</p>
-    </div>
+    {% if products %}
+        <p>Всего товаров: {{ count_products }}</p>
+        {% for product in products %}
+           <div class="product-view-class" id="product-view-class-{{ product.id }}">
+                <div class="product-view"
+                     onclick="location.href = '{{ url_for("get_product", product_id=product.id) }}'">
+                    <p>{{ product.name }}</p>
+                    <p>{{ product.price }}</p>
+                    <p id="product-id">{{ product.id }}</p>
+
+                    <img class="product-photo" src="{{ product.photo }}" width="50%"
+                         height="auto">
+                </div>
+                <p><input id="btn-add-cart" onclick="AddInCart({{ product.id }})" type="button" value="В корзину"></p>
+                <p><input type="button" onclick="AddInFav({{ product.id }})" value="В избранное"></p>
+            </div>
+        {% endfor %}
+    {% endif %}
+    <script>
+        function AddInCart(product_id) {
+            let data = {}
+            data.product_id = product_id
+            console.log(data.product_id);
+            $.ajax({
+                url: '{{ url_for('add_in_cart_product') }}', // добавляем url, откуда будем брать данные
+                method: 'get', // указываем метод
+                dataType: 'html', // тип данных
+                data: data, // данные запроса (в данном случае, там находятся GET-параметры)
+                // функция, которая вызывается при успешном получении данных
+                success: function (data) {
+                    data = JSON.parse(data)
+                    if(data['response'] == true){
+                        alert('Товар добавлен в корзину !')
+                    }else if(data['response'] == false){
+                        alert('Товар уже находится в корзине !')
+                    }else if(data['response'] == 'Not auth'){
+                        alert('Авторизуйтесь, чтобы добавить товар в корзину !')
+                    }
+                }
+            })
+        }
+                function AddInFav(product_id) {
+            let data = {}
+            data.product_id = product_id
+            console.log(data.product_id);
+            $.ajax({
+                url: '{{ url_for('add_in_fav_product') }}', // добавляем url, откуда будем брать данные
+                method: 'get', // указываем метод
+                dataType: 'html', // тип данных
+                data: data, // данные запроса (в данном случае, там находятся GET-параметры)
+                // функция, которая вызывается при успешном получении данных
+                success: function (data) {
+                    data = JSON.parse(data)
+                    if(data['response'] == false){
+                        alert('Товар уже в избранном !')
+                    }else if(data['response'] == 'Not auth'){
+                         alert('Авторизуйтесь, чтобы добавить товар в избранное !')
+                    }
+                }
+            })
+        }
+
+
+    </script>
+
     {% if status %}
         <p>{{ status }}</p>
     {% endif %}
