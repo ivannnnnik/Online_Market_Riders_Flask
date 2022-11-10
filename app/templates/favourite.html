@@ -1,1 +1,60 @@
+
 {% extends 'layouts/base.html' %}
+{%  block content %}
+    {% if status %}
+        <p>{{ status }}</p>
+    {% endif %}
+    {% if products %}
+        {% for product in products %}
+           <div class="product-view-class" id="product-view-class-{{ product.id }}">
+                <div class="product-view"
+                     onclick="location.href = '{{ url_for("get_product", product_id=product.id) }}'">
+                    <p>{{ product.name }}</p>
+                    <p>{{ product.price }}</p>
+                    <img class="product-photo" src="{{ product.photo }}" width="50%"
+                         height="auto">
+                </div>
+           <p><input id="btn-del-cart" onclick="DelInFav({{ product.id }})" type="button" value="Удалить"></p>
+           <p><input id="btn-add-cart" onclick="AddInCart({{ product.id }})" type="button" value="В корзину"></p>
+            </div>
+        {% endfor %}
+    {% endif %}
+    <script>
+    function AddInCart(product_id) {
+            let data = {}
+            data.product_id = product_id
+            console.log(data.product_id);
+            $.ajax({
+                url: '{{ url_for('add_in_cart_product') }}', // добавляем url, откуда будем брать данные
+                method: 'get', // указываем метод
+                dataType: 'html', // тип данных
+                data: data, // данные запроса (в данном случае, там находятся GET-параметры)
+                // функция, которая вызывается при успешном получении данных
+                success: function (data) {
+                    data = JSON.parse(data)
+                    if(data['response']){
+                        alert('Товар добавлен в корзину !')
+                    }else{
+                        alert('Товар ужа находится в корзине !')
+                    }
+                }
+            })
+        }
+        function DelInFav(product_id) {
+            let data = {}
+            data.product_id = product_id
+            console.log(data.product_id);
+            $.ajax({
+                url: '{{ url_for('del_product_in_favourite') }}', // добавляем url, откуда будем брать данные
+                method: 'get', // указываем метод
+                dataType: 'html', // тип данных
+                data: data, // данные запроса (в данном случае, там находятся GET-параметры)
+                // функция, которая вызывается при успешном получении данных
+                success: function (data) {
+                    data = JSON.parse(data)
+                    $(data['id']).html('')
+                }
+            })
+        }
+    </script>
+{% endblock %}
