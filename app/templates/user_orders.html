@@ -1,0 +1,30 @@
+{% extends 'layouts/base.html' %}
+{% block content %}
+    {% if status %}
+        <p>{{ status }}</p>
+    {% else %}
+        {% for products in purchases_products %}
+            <div class="contain-for-prod">
+                {% for product in products[::-1] %}
+                    {%- if loop.index0 != 0 %}
+                        <div class="product-view-class" id="product-view-class-{{ product.id }}">
+                            <div class="product-view"
+                                 onclick="location.href = '{{ url_for("get_product", product_id=product.id) }}'">
+                                <p>{{ product.name }}</p>
+                                <p>{{ product.final_price }}</p>
+                                <p>{{ product.date_month }}</p>
+                                <p>{{ product.date_day }}</p>
+                                <p>{{ product.date_time }}</p>
+                                <img class="product-photo" src="{{ product.photo }}" width="50%"
+                                     height="auto">
+                            </div>
+                        </div>
+                    {% else %}
+                        <p>Сумма: {{ product }}</p>
+                    {% endif %}
+                {% endfor %}
+
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endblock %}
