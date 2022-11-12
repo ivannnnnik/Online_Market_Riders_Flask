@@ -28,6 +28,21 @@ def load_user(user_id):
     return UserLogin().from_db(user_id, db)
 
 
+@app.route('/user_orders')
+def user_orders():
+    user_id = current_user.get_id()
+    purchases_products = db.get_user_purchases(user_id)
+    print(purchases_products)
+    if purchases_products:
+        context = {
+            'purchases_products': purchases_products
+        }
+        return render_template('user_orders.html', **context)
+    else:
+        status = 'Ваш список заказов пуст !'
+        return render_template('user_orders.html', status=status)
+
+
 @app.route('/')
 def index():
     products = db.get_products_all()
@@ -35,9 +50,7 @@ def index():
         context = {
             'products': products,
             'count_products': len(products)
-
         }
-        print(products)
         return render_template('index.html', **context)
     else:
         return render_template('index.html')
@@ -199,7 +212,6 @@ def add_in_cart_product():
             return data
 
 
-
 @app.route("/add_in_fav", methods=['GET', 'POST'])
 def add_in_fav_product():
     if request.method == 'GET':
@@ -227,10 +239,15 @@ def del_product_in_cart():
         product_id = int(request.args['product_id'])
         user_id = current_user.get_id()
         status = db.del_product_in_cart(user_id, product_id)
+        check_count_product_in_cart = db.user_cart(user_id)
+        check_count_product_in_cart = True if check_count_product_in_cart != [] and check_count_product_in_cart != False else 0
+        print('check')
+        print(check_count_product_in_cart)
         if status:
             data = {
                 'response': True,
-                'id': f'#product-view-class-{product_id}'
+                'id': f'#product-view-class-{product_id}',
+                'products': check_count_product_in_cart
             }
             return data
         else:

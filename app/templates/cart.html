@@ -1,7 +1,10 @@
 {% extends 'layouts/base.html' %}
 {% block content %}
     {% if status %}
-        <p>{{ status }}</p>
+        <div class="relink-in-products">
+            <p><input id="relink-button-product" onclick="window.location = '/';" type="button"
+                      value="Перейти к товарам"></p>
+        </div>
     {% endif %}
     {% if products %}
         {% for product in products %}
@@ -16,7 +19,8 @@
                 <label
                 <p><input id="btn-in-cart-{{ product.id }}" onclick="AddInOrder({{ product.price }}, {{ product.id }})"
                           type="checkbox" checked></p>
-                <p><input id="btn-del-cart" onclick="DelInCart({{ product.id }}, {{ product.price }})" type="button" value="Удалить"></p>
+                <p><input id="btn-del-cart" onclick="DelInCart({{ product.id }}, {{ product.price }})" type="button"
+                          value="Удалить"></p>
                 <p><input id="btn-del-fav" onclick="AddInFav({{ product.id }})" type="button" value="В избранное"></p>
                 <p><input id="btn-count-+" onclick="CorCount({{ product.id }}, {{ product.price }}, true)" type="button"
                           value="+"></p>
@@ -26,17 +30,64 @@
                           type="button" value="-"></p>
             </div>
         {% endfor %}
-        <div class="price" id="price-order">
-            <p>Общая стоимость: </p>
-            <p id="final-cart-price">{{ final_price }}</p>
+        <div class="price" id="price-order-cart">
+            <div class="price-view-cart">
+                <p>Общая стоимость: </p>
+                <p id="final-cart-price">{{ final_price }}</p>
+            </div>
         </div>
         <div class="create-order">
-             <p><input id="" onclick="" type="button" value="Сформировать заказ"></p>
+            <p><input id="form-an-order" onclick="CorOrder()" type="button"
+                      value="Сформировать заказ"></p>
         </div>
     {% endif %}
     <script>
-        function CorOrder(product_id, product_price, status) {
+        let list_product_order = [];
 
+        function CorOrder(user_id) {
+            /// получаю id всех товаров из бд
+            /// просматриваю btn.checked и id.count
+            let data = {'status': 1}
+            $.ajax({
+                url: '{{ url_for('create_order_1') }}', // добавляем url, откуда будем брать данные
+                method: 'get', // указываем метод
+                dataType: 'html', // тип данных
+                data: data, // данные запроса (в данном случае, там находятся GET-параметры)
+                // функция, которая вызывается при успешном получении данных
+                success: function (data) {
+                    data = JSON.parse(data)
+                    let list_products = Object.values(data);
+                    let list_products_length = list_products.length;
+                    let dict_order = {};
+                    let pathcount = 'count-product-';
+                    let pathbtn = 'btn-in-cart-';
+                    for (let i = 0; i < list_products_length; i++) {
+                        product_id = list_products[i];
+                        product_id.toString()
+                        console.log('looloool')
+                        console.log(product_id)
+                        let btnincart = document.getElementById(pathbtn + product_id)
+                        let countprod = Number(document.getElementById(pathcount + product_id).innerText);
+                        let second_str = countprod.toString() + ' ' + btnincart.checked.toString()
+                        dict_order[product_id] = second_str
+                        console.log(product_id)
+
+                    }
+                    console.log(dict_order)
+                    $.ajax({
+                        url: '{{ url_for('create_order_2') }}', // добавляем url, откуда будем брать данные
+                        method: 'get', // указываем метод
+                        dataType: 'html', // тип данных
+                        data: dict_order, // данные запроса (в данном случае, там находятся GET-параметры)
+                        // функция, которая вызывается при успешном получении данных
+                        success: function () {
+                            window.location.href = '/order';
+                        }
+                    })
+
+
+                }
+            })
         }
 
         function CorCount(product_id, product_price, status) {
@@ -98,7 +149,6 @@
             document.getElementById('final-cart-price').innerHTML = finalprice;
             let data = {}
             data.product_id = product_id
-            console.log(data.product_id);
             $.ajax({
                 url: '{{ url_for('del_product_in_cart') }}', // добавляем url, откуда будем брать данные
                 method: 'get', // указываем метод
@@ -107,7 +157,16 @@
                 // функция, которая вызывается при успешном получении данных
                 success: function (data) {
                     data = JSON.parse(data)
-                    $(data['id']).html('')
+                    console.log(data['products']);
+                    if (data['products'] == 0) {
+                        $(data['id']).html('');
+                        $('#price-order-cart').html('');
+                        $('#form-an-order').val('Перейти к товарам');
+                        document.getElementById("form-an-order").setAttribute("onClick", "window.location = '/';");
+
+                    } else {
+                        $(data['id']).html('');
+                    }
                 }
             })
         }

@@ -3,7 +3,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from psycopg2.extras import DictCursor
 import psycopg2.errors
 import json
-
+from psycopg2 import Timestamp
+from datetime import datetime
+import dateutil.parser
 
 class Database:
     def __init__(self):
@@ -135,7 +137,6 @@ class Database:
         final_price = [list_product[i]['price'] for i in range(len(list_product))]
         return sum(final_price)
 
-
     def add_product_in_favourite(self, user_id, product_id):
         sql_query_1 = "SELECT product_id FROM favourites WHERE user_id=%s and product_id=%s"
         self.cur.execute(sql_query_1, (user_id, product_id))
@@ -152,6 +153,85 @@ class Database:
         else:
             print(f'Товар не добавлен!')
             return False
+
+    def add_product_in_order(self, user_id, list_products: list):
+        # Проверка на orders_id [ [ [{}], 1, true], [ [{}], 1, false] ] ]
+        print('--------------------------------------------------------------------------')
+        sql_check_last_order = "SELECT max(order_id) FROM orders"
+        self.cur.execute(sql_check_last_order)
+        check_id = self.cur.fetchone()[0]
+        # print(check_id)
+        status = 'Принят'
+        check_product = 1
+        if check_id is None:
+            order_id = 0
+        else:
+            order_id = check_id + 1
+        for i in range(len(list_products)):
+            product_id = list_products[i][0][0]['id']
+            count = int(list_products[i][1])
+            check = list_products[i][2]
+            if check == 'true':
+                check = 1
+            else:
+                check = 0
+
+            sql_check_product_user_in_order = "SELECT product_id, count, check_product FROM orders WHERE product_id=%s and status=%s and user_id=%s"
+            self.cur.execute(sql_check_product_user_in_order, (product_id, status, user_id))
+            check_product_in_order = self.cur.fetchone()
+            if not check_product_in_order:
+                print(f'check: {check_product_in_order}')
+                sql_query_1 = "INSERT INTO orders (user_id, product_id, status, order_id, count, check_product) VALUES (%s, %s,%s,%s,%s,%s) RETURNING order_id"
+                self.cur.execute(sql_query_1, (user_id, product_id, status, order_id, count, check))
+                self.con.commit()
+
+            else:
+                # TODO + проверка на check
+                if check_product_in_order[1] != count:
+                    print(check_product_in_order[1], count)
+                    sql_query_1 = "UPDATE orders SET count=%s WHERE user_id=%s and product_id=%s and status=%s RETURNING count"
+                    self.cur.execute(sql_query_1, (count, user_id, product_id, status))
+                    result = self.cur.fetchall()
+                    print(result)
+                    self.con.commit()
+                    print(f'данные изменил: id: {product_id}, count: {count}')
+                if check_product_in_order[2] != check:
+                    sql_query_1 = "UPDATE orders SET check_product=%s WHERE user_id=%s and product_id=%s and status=%s RETURNING count"
+                    self.cur.execute(sql_query_1, (check, user_id, product_id, status))
+                    result = self.cur.fetchall()
+                    print(result)
+                    self.con.commit()
+                    print(f'Измени статус продукта {product_id}')
+        return True
+
+    def get_products_in_order(self, user_id):
+        sql_query = "SELECT product_id, count, order_id FROM orders WHERE user_id = %s and check_product=%s"
+        self.cur.execute(sql_query, (user_id, 1))
+        result = self.cur.fetchall()
+        list_order_product = []
+        if result != []:
+            list_order_products = self.prepare_data(result)
+            for i in range(len(list_order_products)):
+                product_data = self.get_product_by_id(list_order_products[i]['product_id'])[0]
+                data_product = {'id': product_data['id'],
+                                'count': list_order_products[i]['count'],
+                                'name': product_data['name'],
+                                'photo': product_data['photo'],
+                                'price': product_data['price'],
+                                'order_id': list_order_products[i]['order_id']}
+                list_order_product.append(data_product)
+            return list_order_product
+        else:
+            return False
+
+    def del_product_in_order(self, user_id, product_id):
+        sql_query = "SELECT product_id, user_id FROM orders WHERE user_id = %s and product_id = %s"
+        self.cur.execute(sql_query, (user_id, product_id))
+        result = self.cur.fetchall()
+        if result:
+            sql_query_1 = "DELETE FROM orders WHERE user_id = %s and product_id = %s"
+            self.cur.execute(sql_query_1, (user_id, product_id))
+            self.con.commit()
 
     def user_favourites(self, user_id):
         sql_query = "SELECT product_id FROM favourites WHERE user_id = %s"
@@ -175,6 +255,7 @@ class Database:
         sql_query = "DELETE FROM cart WHERE user_id = %s and product_id=%s"
         self.cur.execute(sql_query, (user_id, product_id))
         self.con.commit()
+        self.del_product_in_order(user_id, product_id)
         result = True
         return result
 
@@ -184,6 +265,133 @@ class Database:
         self.con.commit()
         result = True
         return result
+
+    def user_payment_products(self, user_id):
+        # sql_query = "SELECT product_id, count FROM orders WHERE user_id = %s and check_product = %s"
+        sql_query = "DELETE FROM orders WHERE user_id = %s and check_product = %s RETURNING product_id, count"
+        self.cur.execute(sql_query, (user_id, 1))
+        result = self.cur.fetchall()
+        list_products = [{'id': result[i][0], 'count': result[i][1]} for i in range(len(result))]
+        self.con.commit()
+        list_purchases = []
+
+        sql_query = "SELECT max(number_purchase) FROM purchases WHERE user_id=%s"
+        self.cur.execute(sql_query, (user_id,))
+        result = self.cur.fetchall()
+        print(result)
+        if result[0][0] is not None:
+            number_purchase = int(result[0][0]) + 1
+            print(number_purchase)
+        else:
+            number_purchase = 0
+
+        for i in range(len(list_products)):
+            count_product = list_products[i]['count']
+            product_id = list_products[i]['id']
+            sql_query = "INSERT INTO purchases (user_id, product_id, count_product, number_purchase) VALUES (%s, %s, %s, %s) RETURNING purchases.date;"
+            self.cur.execute(sql_query, (user_id, product_id, count_product, number_purchase))
+            self.con.commit()
+            result = self.cur.fetchall()
+            format_date_month = '%m'
+            format_date_day = '%d'
+            format_time = '%H:%M'
+            result = result[0][0]
+            result = result.replace(' ', 'T')
+            result = result.replace('+03', '')
+
+            data_order = datetime.fromisoformat(result)
+            data_date_month = data_order.strftime(format_date_month)
+            data_date_day = data_order.strftime(format_date_day)
+            data_date_time = data_order.strftime(format_time)
+
+            product = self.get_product_by_id(product_id)
+            product = product[0]
+            context = {
+                'id': product['id'],
+                'name': product['name'],
+                'final_price': product['price'] * count_product,
+                'photo': product['price'],
+                'count': count_product,
+                'date_month': data_date_month,
+                'date_day': data_date_day,
+                'date_time': data_date_time
+            }
+            list_purchases.append(context)
+
+        return list_purchases
+
+    def get_product_price(self, product_id):
+        sql_query = "SELECT price FROM products WHERE id=%s "
+        self.cur.execute(sql_query, (product_id,))
+        result = self.cur.fetchall()
+        return result[0][0]
+
+    def get_user_purchases(self, user_id):
+        sql_query = "SELECT product_id, count_product, number_purchase, date FROM purchases WHERE user_id=%s "
+        self.cur.execute(sql_query, (user_id,))
+        result = self.cur.fetchall()
+        list_products = self.prepare_data(result)
+        # print(list_products)
+        dict_products = {}
+        for i in range(len(list_products)):
+            if list_products[i]['number_purchase'] in dict_products:
+                dict_products[list_products[i]['number_purchase']].append(list_products[i])
+            else:
+                dict_products[list_products[i]['number_purchase']] = [list_products[i]]
+        # print(dict_products)
+        list_out = []
+        for key_i in dict_products:
+            list_out.append(dict_products[key_i])
+
+        # print(list_out)
+
+        list_purchases_output = []
+        for i in range(len(list_out)):
+            second_list = []
+            second_sum = 0
+            for j in range(len(list_out[i])):
+                product_price = self.get_product_price(list_out[i][j]['product_id'])
+                format_date_month = '%m'
+                format_date_day = '%d'
+                format_time = '%H:%M'
+                date_product = list_out[i][j]['date']
+                date_product = date_product.replace('+03', '')
+                date_product = date_product.replace(' ', 'T')
+                # print(date_product)
+                data_order = dateutil.parser.isoparse(date_product)
+                data_date_month = data_order.strftime(format_date_month)
+                data_date_day = data_order.strftime(format_date_day)
+                data_date_time = data_order.strftime(format_time)
+
+                product = self.get_product_by_id(list_out[i][j]['product_id'])
+                product = product[0]
+                second_sum += int(product['price']) * list_out[i][j]['count_product']
+                context = {
+                    'id': product['id'],
+                    'name': product['name'],
+                    'final_price': product['price'] * list_out[i][j]['count_product'],
+                    'photo': product['photo'],
+                    'count': list_out[i][j]['count_product'],
+                    'date_month': data_date_month,
+                    'date_day': data_date_day,
+                    'date_time': data_date_time
+                }
+                second_list.append(context)
+            second_list.append(second_sum)
+            list_purchases_output.append(second_list)
+            print(f'second: {second_sum}')
+        return list_purchases_output
+
+
+    def user_purchases(self, user_id):
+        sql_query = "SELECT product_id, count_product, number_purchase FROM purchases WHERE user_id = %s"
+        self.cur.execute(sql_query, (user_id,))
+        result = self.cur.fetchall()
+        print(result)
+        if result:
+            pass
+        else:
+            return False
 
     def insert(self, query):
         self.cur.execute(query)
@@ -204,5 +412,8 @@ class Database:
         return output_data
 
 
+# sql_query = "ALTER TABLE purchases ADD number_purchase INT NOT NULL;;"
+
 a = Database()
-print(a.user_cart(22))
+# print(a.insert(sql_query))
+print(a.get_user_purchases(22))
