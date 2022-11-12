@@ -2,3 +2,16 @@
 {% block content %}
     <h1><p>Такой страницы не существует !</p></h1>
 {% endblock %}
+
+    {% for product in products %}
+        <div class="product-view-class" id="product-view-class-{{ product[0][0].id }}">
+            <div class="product-view"
+                 onclick="location.href = '{{ url_for("get_product", product_id=product[0][0].id) }}'">
+                <p>{{ product[0][0].name }}</p>
+                <p>{{ product[0][0].price }}</p>
+                <p>Количество: {{ product[1] }}</p>
+                <img class="product-photo" src="{{ product[0][0].photo }}" width="50%"
+                     height="auto">
+            </div>
+        </div>
+    {% endfor %}
