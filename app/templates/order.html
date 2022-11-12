@@ -1,0 +1,49 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+    {% if status_product %}
+        <div class="relink-in-products">
+            <p>{{ status_product }}</p>
+        </div>
+        <input name="action-1" onclick="history.back();" type="submit" value="Вернуться к корзине"/>
+    {% elif status_payment %}
+        <div class="relink-in-products">
+            <p>{{ status_payment }}</p>
+        </div>
+        <input name="action-1" onclick="window.location.href = '{{ url_for('index') }}';" type="submit" value="Вернуться к товарам"/>
+    {% else %}
+        {% if products %}
+            {% for product in products %}
+                <div class="product-view-class" id="product-view-class-{{ product.id }}">
+                    <div class="product-view"
+                         onclick="location.href = '{{ url_for("get_product", product_id=product.id) }}'">
+                        <p>{{ product.name }}</p>
+                        <p>{{ product.price }}</p>
+                        <p>{{ product.count }}</p>
+                        <img class="product-photo" src="{{ product.photo }}" width="50%"
+                             height="auto">
+                    </div>
+                </div>
+                <div>
+                </div>
+            {% endfor %}
+            <p>Итого к оплате: {{ final_price }}</p>
+            <input name="action-1" onclick="history.back();" type="submit" value="Вернуться к корзине"/>
+            <input name="action-2" onclick="Payment()" type="submit" value="Оплатить"/>
+        {% endif %}
+    {% endif %}
+    <script>
+        function Payment() {
+
+            $.ajax({
+                url: '{{ url_for('payment') }}', // добавляем url, откуда будем брать данные
+                method: 'get', // указываем метод
+                dataType: 'html', // тип данных
+                // данные запроса (в данном случае, там находятся GET-параметры)
+                // функция, которая вызывается при успешном получении данных
+                success: function () {
+                    window.location.href = '/payment';
+                }
+            })
+        }
+    </script>
+{% endblock %}
