@@ -494,7 +494,33 @@ class Database:
         else:
             return False
 
-# sql_query = "ALTER TABLE purchases ADD number_purchase INT NOT NULL;;"
+    def delete_profile_user(self, user_id):
+        sql_query = "DELETE FROM users WHERE id=%s;"
+        self.cur.execute(sql_query, (user_id,))
+        self.con.commit()
+        return True
+
+    def update_name_user(self, user_id, name_user):
+        if len(name_user) > 2:
+            if len(name_user) < 25:
+                sql_query = "UPDATE users SET name=%s WHERE id=%s;"
+                self.cur.execute(sql_query, (name_user, user_id,))
+                self.con.commit()
+                return True
+            else:
+                return False
+        else:
+            return False
+
+    def update_password_user(self, user_id, password):
+        sql_query = "UPDATE users SET password=%s WHERE id=%s;"
+        self.cur.execute(sql_query, (password, user_id,))
+        self.con.commit()
+        return True
+
+
+# sql_query = "ALTER TABLE products DROP COLUMN count;"
+# sql_query = "ALTER TABLE products ADD status BOOLEAN NOT NULL;"
 
 a = Database()
 # print(a.insert(sql_query))
