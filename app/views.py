@@ -353,7 +353,194 @@ def del_product_in_favourite():
             return data
 
 
-@app.errorhandler(404)
+@app.route("/del_in_product", methods=['GET', 'POST'])
+def del_admin_product():
+    if request.method == 'GET':
+        # print(request.args)
+        product_id = int(request.args['product_id'])
+        status = db.delete_product(product_id)
+        if status:
+            data = {
+                'response': True,
+                'id': f'#product-view-class-{product_id}',
+            }
+            return data
+        else:
+            data = {'response': False}
+            return data
+
+
+@app.route("/red_product/<int:product_id>")
+@login_required
+def red_admin_product(product_id):
+    product = db.get_product_by_id(product_id)
+    product = product[0]
+    print(product)
+    context = {
+        'id': product['id'],
+        'name': product['name'],
+        'text': product['text'],
+        'price': product['price'],
+        'type': product['type']
+    }
+    return render_template('red_product.html', context=context)
+
+
+@app.route("/red_profile_user", methods=['GET', 'POST'])
+@login_required
+def red_profile_user():
+    user_id = current_user.get_id()
+    data_user = db.get_user(user_id)[0]
+    context = {
+        'id': data_user['id'],
+        'name': data_user['name'],
+        'email': data_user['email']
+    }
+    print(context)
+    return render_template('red_profile.html', context=context)
+
+
+@app.route("/update_user_profile", methods=['GET', 'POST'])
+@login_required
+def update_profile_user():
+    user_id = current_user.get_id()
+    data_user = db.get_user(user_id)[0]
+    context = {
+        'name': data_user['name'],
+        'email': data_user['email'],
+        'password': data_user['password']
+    }
+    if request.method == 'POST':
+        name = request.form.get('name'),
+        old_password = request.form.get('old_password'),
+        new_password = request.form.get('new_password'),
+        name = str(name[0])
+        old_password = str(old_password[0])
+        new_password = str(new_password[0])
+        if name:
+            result = db.update_name_user(user_id, name)
+            context['name'] = name
+            if result is False:
+                status = 'Неккоректное Имя'
+                return render_template('red_profile.html', status_false=status, context=context)
+        if old_password:
+            if check_password_hash(context['password'], old_password):
+                if new_password:
+                    if len(new_password) > 7:
+                        if len(new_password) < 45:
+                            result = db.update_password_user(user_id, generate_password_hash(new_password))
+                            status = 'Данные успешно изменены'
+                            return render_template('red_profile.html', status_true=status, context=context)
+                        else:
+                            status = 'Неккоректный пароль'
+                            return render_template('red_profile.html', status_false=status, context=context)
+                    else:
+                        status = 'Неккоректный пароль'
+                        return render_template('red_profile.html', status_false=status, context=context)
+
+                else:
+                    status = 'Вы не ввели новый пароль'
+                    return render_template('red_profile.html', status_false=status, context=context)
+            else:
+                status = 'Старый пароль неверный'
+                return render_template('red_profile.html', status_false=status, context=context)
+        status = 'Данные успешно изменены'
+        return render_template('red_profile.html', status_true=status, context=context)
+    return render_template('red_profile.html', context=context)
+
+
+@app.route("/update_product", methods=['GET', 'POST'])
+def update_admin_product():
+    if request.method == 'POST':
+        context = {
+            'id': request.form.get('id'),
+            'name': request.form.get('name'),
+            'text': request.form.get('text'),
+            'price': request.form.get('price'),
+            'type_product': request.form.get('type_product'),
+            'photo': request.files['photo']
+        }
+        print(context)
+        filename = secure_filename(context['photo'].filename)
+        photo_path = ""
+        if filename != '':
+            img_id = db.last_id()
+            photo = context['photo']
+            photo.save(os.path.join(
+                app.root_path, 'static\img', f'{img_id}.{filename}'))
+            photo_path = os.path.join('static\img', f'{img_id}.{filename}')
+
+            print(photo_path)
+        result = db.update_product(context['id'], context['name'], context['text'], context['price'],
+                                   context['type_product'], photo_path)
+
+        return redirect(url_for('admin_products'))
+
+
+@app.route("/create_order_1", methods=['GET', 'POST'])
+def create_order_1():
+    if request.method == 'GET':
+        user_id = current_user.get_id()
+        user_products_in_cart = db.user_cart(user_id)
+        user_products_in_cart = {f'{i}': user_products_in_cart[i]['id'] for i in range(len(user_products_in_cart))}
+        if user_products_in_cart:
+            return user_products_in_cart
+        return False
+
+
+@app.route("/create_order_2", methods=['GET', 'POST'])
+def create_order_2():
+    if request.method == 'GET':
+        user_id = current_user.get_id()
+        print(request.args)
+        products = dict(request.args)
+        if products != {}:
+            print(f'Продукты {products}')
+            if products:
+                # print(products)
+                list_product_order = []
+                for key_id in products:
+                    product_dict = db.get_product_by_id(key_id)
+                    count = products[key_id].split()[0]
+                    checked = products[key_id].split()[1]
+                    list_product_order.append([product_dict, count, checked])
+                # print(f'products:   {list_product_order}')
+                status = db.add_product_in_order(user_id, list_product_order)
+                # print(status)
+                context = {
+                    'products': list_product_order
+                }
+                return {}
+
+
+@app.route("/order", methods=['GET', 'POST'])
+def order():
+    user_id = current_user.get_id()
+    products = db.get_products_in_order(user_id)
+    if products:
+        final_price = [products[i]['price'] * products[i]['count'] for i in range(len(products))]
+        final_price = sum(final_price)
+        context = {
+            'products': products,
+            'final_price': final_price
+        }
+        return render_template('order.html', **context)
+    else:
+        status = 'Выберите минимум один товар'
+        return render_template('order.html', status_product=status)
+
+
+@app.route("/payment", methods=['GET', 'POST'])
+def payment():
+    user_id = current_user.get_id()
+    result = db.user_payment_products(user_id)
+    for i in range(len(result)):
+        db.del_product_in_cart(user_id, int(result[i]['id']))
+
+    status = 'Покупка прошла успешно !'
+    return render_template('order.html', status_payment=status)
+
+
 def pageNotFound(error):
     return render_template('page404.html', title='Страница не найдена !')
 
