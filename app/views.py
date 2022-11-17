@@ -139,7 +139,7 @@ def register():
         else:
             if result is True:
                 status = 'Вы успешно зарегистрировались !'
-                return redirect(url_for('login'))
+                return render_template('accounts/login.html', status_true=status)
     return render_template('accounts/register.html', form=form)
 
 
@@ -164,13 +164,12 @@ def login():
                 login_user(user_login, remember=rm)
                 return redirect(url_for('index'))
             else:
-                status = 'Вы ввели неверные данные !'
+                status = 'Вы ввели неверный пароль'
                 return render_template('accounts/login.html', form=form, status=status)
         else:
-            status = 'Вы не зарегистрировались !'
+            status = 'Вы не зарегистрировались'
             return render_template('accounts/login.html', form=form, status=status)
-    else:
-        pass
+
     return render_template('accounts/login.html', form=form)
 
 
@@ -178,8 +177,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    flash('Вы вышли из аккаунта !')
-    return render_template('index.html')
+    return redirect(url_for('index'))
 
 
 @app.route('/new_product', methods=['POST', 'GET'])
@@ -199,7 +197,6 @@ def new_product():
         print(name)
         print(type(name))
         user_id = current_user.get_id()
-        photo = form.photo.data
         filename = secure_filename(photo.filename)
         img_id = db.last_id()
         photo.save(os.path.join(
@@ -207,9 +204,9 @@ def new_product():
 
         photo_path = os.path.join('static\img', f'{img_id}.{filename}')
 
-        result = db.create_product(name, text, price, user_id, count, type_product, photo_path)
+        result = db.create_product(name, text, price, user_id, type_product, photo_path)
         if result:
-            status = f'Товар {name} создан !'
+            status = f'Товар {name} успешно создан '
             return render_template('new_product.html', status=status)
         else:
             if result is False:
@@ -248,7 +245,7 @@ def cart_user():
             'products': user_cart_products,
             'final_price': final_price
         }
-        print(user_cart_products)
+        # print(user_cart_products)
         return render_template('cart.html', **context)
     else:
         return render_template('cart.html', status=status)
@@ -259,6 +256,7 @@ def profile_user():
     user_id = current_user.get_id()
     user_data = db.get_user(user_id)[0]
     context = {
+        'id': user_data['id'],
         'username': user_data['name'],
         'email': user_data['email']
     }
@@ -276,7 +274,7 @@ def delete_profile_user():
 @app.route("/add_in_cart", methods=['GET', 'POST'])
 def add_in_cart_product():
     if request.method == 'GET':
-        print(request.args)
+        # print(request.args)
         product_id = int(request.args['product_id'])
         user_id = current_user.get_id()
         if user_id:
@@ -295,11 +293,11 @@ def add_in_cart_product():
 @app.route("/add_in_fav", methods=['GET', 'POST'])
 def add_in_fav_product():
     if request.method == 'GET':
-        print(request.args)
+        # print(request.args)
         product_id = int(request.args['product_id'])
         user_id = current_user.get_id()
         if user_id:
-            print(user_id)
+            # print(user_id)
             status = db.add_product_in_favourite(user_id, product_id)
             if status:
                 data = {'response': True}
@@ -315,14 +313,14 @@ def add_in_fav_product():
 @app.route("/del_in_cart", methods=['GET', 'POST'])
 def del_product_in_cart():
     if request.method == 'GET':
-        print(request.args)
+        # print(request.args)
         product_id = int(request.args['product_id'])
         user_id = current_user.get_id()
         status = db.del_product_in_cart(user_id, product_id)
         check_count_product_in_cart = db.user_cart(user_id)
         check_count_product_in_cart = True if check_count_product_in_cart != [] and check_count_product_in_cart != False else 0
-        print('check')
-        print(check_count_product_in_cart)
+        # print('check')
+        # print(check_count_product_in_cart)
         if status:
             data = {
                 'response': True,
@@ -338,7 +336,7 @@ def del_product_in_cart():
 @app.route("/del_in_fav", methods=['GET', 'POST'])
 def del_product_in_favourite():
     if request.method == 'GET':
-        print(request.args)
+        # print(request.args)
         product_id = int(request.args['product_id'])
         user_id = current_user.get_id()
         status = db.del_product_in_favourite(user_id, product_id)
