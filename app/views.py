@@ -61,6 +61,30 @@ def admin_products():
 @app.route('/', methods=['GET', 'POST'])
 def index():
     products = db.get_products_all()
+    if request.method == 'POST':
+        if request.form.get('search'):
+            products = db.get_products_filter(request.form.get('search'))
+        if request.form.get('min'):
+            products = [products[i] for i in range(len(products)) if
+                        int(products[i]['price']) > int(request.form.get('min'))]
+        if request.form.get('max'):
+            products = [products[i] for i in range(len(products)) if
+                        int(products[i]['price']) < int(request.form.get('max'))]
+        if request.form.get('type_product'):
+            if request.form.get('type_product') != 'Выберите категорию':
+                products = [products[i] for i in range(len(products)) if
+                            products[i]['type'] == request.form.get('type_product')]
+
+        if products:
+            context = {
+                'products': products,
+                'count_products': len(products)
+            }
+            return render_template('index.html', **context)
+        else:
+            status = True
+            return render_template('index.html', status=status)
+
     if products:
         context = {
             'products': products,
