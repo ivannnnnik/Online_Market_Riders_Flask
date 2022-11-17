@@ -153,7 +153,10 @@ def login():
         if request.form.get("check"):
             remember = True
         user = db.get_user_by_email(email)
-        print(user)
+        email = str(email)
+        password = str(password)
+        print(password)
+        print(email)
         if user:
             if check_password_hash(user[0]['password'], password):
                 user_login = UserLogin().create(user)
@@ -183,12 +186,18 @@ def logout():
 @login_required
 def new_product():
     form = forms.CreateProduct()
-    if form.validate_on_submit():
-        name = form.name.data
-        text = form.text.data
-        price = form.price.data
-        count = form.count.data
-        type_product = form.type_product.data
+    if request.method =='POST':
+        name = request.form.get('name'),
+        price = request.form.get('price')
+        text = request.form.get('text')
+        type_product = request.form.get('type_product')
+        photo = request.files['photo']
+        name = str(name[0])
+        price = str(price)
+        text = str(text)
+        type_product = str(type_product)
+        print(name)
+        print(type(name))
         user_id = current_user.get_id()
         photo = form.photo.data
         filename = secure_filename(photo.filename)
