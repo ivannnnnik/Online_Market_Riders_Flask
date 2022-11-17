@@ -92,7 +92,8 @@ def index():
         }
         return render_template('index.html', **context)
     else:
-        return render_template('index.html')
+        status = True
+        return render_template('index.html', status=status)
 
 
 @app.route('/product/<int:product_id>')
@@ -100,6 +101,24 @@ def get_product(product_id):
     products = db.get_product_by_id(product_id)[0]
     print(products)
     return render_template('product.html', product=products)
+
+
+@app.route('/user_orders/<int:purchase_id>')
+def get_products_user_purchase(purchase_id):
+    user_id = current_user.get_id()
+    products = db.get_products_purchase_by_id(user_id, purchase_id)
+    final_price = [products[i]['count_product'] * products[i]['price'] for i in range(len(products))]
+    print(final_price)
+    if products:
+        context = {
+            'products': products,
+            'count_products': len(products),
+            'final_price': sum(final_price)
+        }
+        return render_template('user_purchase.html', **context)
+    else:
+        status = True
+        return render_template('user_purchase.html', status=status)
 
 
 @app.route('/registration', methods=['POST', 'GET'])
