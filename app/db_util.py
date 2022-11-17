@@ -7,6 +7,7 @@ from psycopg2 import Timestamp
 from datetime import datetime
 import dateutil.parser
 
+
 class Database:
     def __init__(self):
         self.con = psycopg2.connect(
@@ -22,7 +23,7 @@ class Database:
         role = 'client'
         self.cur.execute(f"SELECT count(email) as count_email FROM users WHERE email='{email}'")
         result = self.prepare_data(self.cur.fetchall())
-        print(result)
+        # print(result)
         if result[0]['count_email'] > 0:
             return False
 
@@ -194,7 +195,7 @@ class Database:
 
     def add_product_in_order(self, user_id, list_products: list):
         # Проверка на orders_id [ [ [{}], 1, true], [ [{}], 1, false] ] ]
-        print('--------------------------------------------------------------------------')
+        # print('--------------------------------------------------------------------------')
         sql_check_last_order = "SELECT max(order_id) FROM orders"
         self.cur.execute(sql_check_last_order)
         check_id = self.cur.fetchone()[0]
@@ -218,26 +219,25 @@ class Database:
             self.cur.execute(sql_check_product_user_in_order, (product_id, status, user_id))
             check_product_in_order = self.cur.fetchone()
             if not check_product_in_order:
-                print(f'check: {check_product_in_order}')
+                # print(f'check: {check_product_in_order}')
                 sql_query_1 = "INSERT INTO orders (user_id, product_id, status, order_id, count, check_product) VALUES (%s, %s,%s,%s,%s,%s) RETURNING order_id"
                 self.cur.execute(sql_query_1, (user_id, product_id, status, order_id, count, check))
                 self.con.commit()
 
             else:
-                # TODO + проверка на check
                 if check_product_in_order[1] != count:
-                    print(check_product_in_order[1], count)
+                    # print(check_product_in_order[1], count)
                     sql_query_1 = "UPDATE orders SET count=%s WHERE user_id=%s and product_id=%s and status=%s RETURNING count"
                     self.cur.execute(sql_query_1, (count, user_id, product_id, status))
                     result = self.cur.fetchall()
-                    print(result)
+                    # print(result)
                     self.con.commit()
                     print(f'данные изменил: id: {product_id}, count: {count}')
                 if check_product_in_order[2] != check:
                     sql_query_1 = "UPDATE orders SET check_product=%s WHERE user_id=%s and product_id=%s and status=%s RETURNING count"
                     self.cur.execute(sql_query_1, (check, user_id, product_id, status))
                     result = self.cur.fetchall()
-                    print(result)
+                    # print(result)
                     self.con.commit()
                     print(f'Измени статус продукта {product_id}')
         return True
@@ -328,10 +328,10 @@ class Database:
         sql_query = "SELECT max(number_purchase) FROM purchases WHERE user_id=%s"
         self.cur.execute(sql_query, (user_id,))
         result = self.cur.fetchall()
-        print(result)
+        # print(result)
         if result[0][0] is not None:
             number_purchase = int(result[0][0]) + 1
-            print(number_purchase)
+            # print(number_purchase)
         else:
             number_purchase = 0
 
@@ -349,7 +349,7 @@ class Database:
             result = result.replace(' ', 'T')
             result = result.replace('+03', '')
 
-            data_order = datetime.fromisoformat(result)
+            data_order = dateutil.parser.isoparse(result)
             data_date_month = data_order.strftime(format_date_month)
             data_date_day = data_order.strftime(format_date_day)
             data_date_time = data_order.strftime(format_time)
@@ -440,7 +440,7 @@ class Database:
         sql_query = "SELECT product_id, count_product, number_purchase FROM purchases WHERE user_id = %s"
         self.cur.execute(sql_query, (user_id,))
         result = self.cur.fetchall()
-        print(result)
+        # print(result)
         if result:
             pass
         else:
@@ -522,6 +522,6 @@ class Database:
 # sql_query = "ALTER TABLE products DROP COLUMN count;"
 # sql_query = "ALTER TABLE products ADD status BOOLEAN NOT NULL;"
 
-a = Database()
+# a = Database()
 # print(a.insert(sql_query))
-print(a.get_user_purchases(22))
+# print(a.get_products_purchase_by_id(22, 0))
