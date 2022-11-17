@@ -464,6 +464,35 @@ class Database:
 
         return output_data
 
+    def get_products_purchase_by_id(self, user_id,  purchase_id):
+        sql_query = "SELECT max(number_purchase) FROM purchases WHERE user_id=%s;"
+        self.cur.execute(sql_query, (user_id,))
+        max_id = self.cur.fetchone()[0]
+        print(max_id)
+        purchase_id = max_id - purchase_id
+        sql_query = "SELECT user_id, product_id, count_product FROM purchases WHERE user_id=%s and number_purchase=%s;"
+        self.cur.execute(sql_query, (user_id, purchase_id,))
+        result = self.cur.fetchall()
+        result = self.prepare_data(result)
+        print(result)
+        list_products = []
+        for i in range(len(result)):
+            product = self.get_product_by_id(result[i]['product_id'])
+            product[0]['count_product'] = result[i]['count_product']
+            list_products.append(product[0])
+        return list_products
+
+    def get_products_filter(self, filter):
+        products = self.get_products_all()
+        list_product = []
+        for i in range(len(products)):
+            search = products[i]['name']
+            if filter.lower() in search.lower():
+                list_product.append(products[i])
+        if len(list_product) != 0:
+            return list_product
+        else:
+            return False
 
 # sql_query = "ALTER TABLE purchases ADD number_purchase INT NOT NULL;;"
 
