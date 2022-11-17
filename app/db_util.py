@@ -380,58 +380,61 @@ class Database:
         sql_query = "SELECT product_id, count_product, number_purchase, date FROM purchases WHERE user_id=%s "
         self.cur.execute(sql_query, (user_id,))
         result = self.cur.fetchall()
-        list_products = self.prepare_data(result)
-        # print(list_products)
-        dict_products = {}
-        for i in range(len(list_products)):
-            if list_products[i]['number_purchase'] in dict_products:
-                dict_products[list_products[i]['number_purchase']].append(list_products[i])
-            else:
-                dict_products[list_products[i]['number_purchase']] = [list_products[i]]
-        # print(dict_products)
-        list_out = []
-        for key_i in dict_products:
-            list_out.append(dict_products[key_i])
+        # print(result)
+        if result:
+            list_products = self.prepare_data(result)
+            # print(list_products)
+            dict_products = {}
+            for i in range(len(list_products)):
+                if list_products[i]['number_purchase'] in dict_products:
+                    dict_products[list_products[i]['number_purchase']].append(list_products[i])
+                else:
+                    dict_products[list_products[i]['number_purchase']] = [list_products[i]]
+            # print(dict_products)
+            list_out = []
+            for key_i in dict_products:
+                list_out.append(dict_products[key_i])
 
-        # print(list_out)
+            # print(list_out)
 
-        list_purchases_output = []
-        for i in range(len(list_out)):
-            second_list = []
-            second_sum = 0
-            for j in range(len(list_out[i])):
-                product_price = self.get_product_price(list_out[i][j]['product_id'])
-                format_date_month = '%m'
-                format_date_day = '%d'
-                format_time = '%H:%M'
-                date_product = list_out[i][j]['date']
-                date_product = date_product.replace('+03', '')
-                date_product = date_product.replace(' ', 'T')
-                # print(date_product)
-                data_order = dateutil.parser.isoparse(date_product)
-                data_date_month = data_order.strftime(format_date_month)
-                data_date_day = data_order.strftime(format_date_day)
-                data_date_time = data_order.strftime(format_time)
+            list_purchases_output = []
+            for i in range(len(list_out)):
+                second_list = []
+                second_sum = 0
+                for j in range(len(list_out[i])):
+                    product_price = self.get_product_price(list_out[i][j]['product_id'])
+                    format_date_month = '%m'
+                    format_date_day = '%d'
+                    format_time = '%H:%M'
+                    date_product = list_out[i][j]['date']
+                    date_product = date_product.replace('+03', '')
+                    date_product = date_product.replace(' ', 'T')
+                    # print(date_product)
+                    data_order = dateutil.parser.isoparse(date_product)
+                    data_date_month = data_order.strftime(format_date_month)
+                    data_date_day = data_order.strftime(format_date_day)
+                    data_date_time = data_order.strftime(format_time)
 
-                product = self.get_product_by_id(list_out[i][j]['product_id'])
-                product = product[0]
-                second_sum += int(product['price']) * list_out[i][j]['count_product']
-                context = {
-                    'id': product['id'],
-                    'name': product['name'],
-                    'final_price': product['price'] * list_out[i][j]['count_product'],
-                    'photo': product['photo'],
-                    'count': list_out[i][j]['count_product'],
-                    'date_month': data_date_month,
-                    'date_day': data_date_day,
-                    'date_time': data_date_time
-                }
-                second_list.append(context)
-            second_list.append(second_sum)
-            list_purchases_output.append(second_list)
-            print(f'second: {second_sum}')
-        return list_purchases_output
-
+                    product = self.get_product_by_id(list_out[i][j]['product_id'])
+                    product = product[0]
+                    second_sum += int(product['price']) * list_out[i][j]['count_product']
+                    context = {
+                        'id': product['id'],
+                        'name': product['name'],
+                        'final_price': product['price'] * list_out[i][j]['count_product'],
+                        'photo': product['photo'],
+                        'count': list_out[i][j]['count_product'],
+                        'date_month': data_date_month,
+                        'date_day': data_date_day,
+                        'date_time': data_date_time,
+                    }
+                    second_list.append(context)
+                second_list.append(second_sum)
+                list_purchases_output.append(second_list)
+                # print(f'second: {second_sum}')
+            return list_purchases_output
+        else:
+            return False
 
     def user_purchases(self, user_id):
         sql_query = "SELECT product_id, count_product, number_purchase FROM purchases WHERE user_id = %s"
