@@ -145,11 +145,13 @@ def register():
 
 @app.route('/authorization', methods=['POST', 'GET'])
 def login():
-    form = forms.AuthForm()
-    if form.validate_on_submit():
-        email = form.email.data
-        password = form.password.data
-        remember = form.remember.data
+    form = forms.AuthForm
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        remember = False
+        if request.form.get("check"):
+            remember = True
         user = db.get_user_by_email(email)
         print(user)
         if user:
