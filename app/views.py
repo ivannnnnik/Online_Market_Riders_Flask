@@ -265,6 +265,14 @@ def profile_user():
     return render_template('profile.html', context=context)
 
 
+@app.route('/delete_profile')
+@login_required
+def delete_profile_user():
+    user_id = current_user.get_id()
+    db.delete_profile_user(user_id)
+    return redirect(url_for('logout'))
+
+
 @app.route("/add_in_cart", methods=['GET', 'POST'])
 def add_in_cart_product():
     if request.method == 'GET':
