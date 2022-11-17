@@ -1,0 +1,86 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+    {% if status %}
+        <div class="uk-card uk-position-top-center" id="cart-alert-pr">
+            <h1 class="uk-heading-line uk-text-center">
+                <span>
+                        У вас нет товаров
+                </span>
+            </h1>
+        </div>
+        <div class="uk-card uk-position-center" id="products-card-relink">
+
+            <div class="create-order">
+                <p><input id="form-an-order" onclick="window.location = '/new_product';" type="button"
+                          value="Создать товар" class="btn btn-primary"></p>
+            </div>
+        </div>
+    {% endif %}
+    {% if products %}
+        <div class="container px-21 text-center" id="block-product-prod">
+            <div class="row row-cols-4 g-2 g-lg-3 uk-margin">
+                {% for product in products %}
+                    <div class="product-card-view">
+                        <div class="col px-2 pb-5">
+                            <div class="card pointer border-0 text-center">
+                                <div class="fav d-flex justify-content-center align-items-center">
+                                    <div class="product-view">
+                                        <div id="product-photo-pr"
+                                             onclick="location.href = '{{ url_for("get_product", product_id=product.id) }}'">
+                                            <picture>
+                                                <img src="{{ product.photo }}" id="photo-style-pr"
+                                                     alt="">
+                                            </picture>
+                                        </div>
+                                        <div id="product-view-class-{{ product.id }}">
+                                            <div class="uk-panel uk-text-truncate">
+                                                <span class="uk-text-emphasis">{{ product.name | hidden_product_format }}</span>
+                                            </div>
+                                            <p>{{ product.price | price_format }}</p>
+                                            <p hidden id="product-id">{{ product.id }}</p>
+                                            <div class="d-grid gap-2 col-6 mx-auto">
+                                                <button class="btn btn-primary" id="btn_cart"
+
+                                                        onclick="DelProduct({{ product.id }})" type="button">Удалить
+                                                </button>
+                                                <button class="btn btn-primary" onclick="RedProduct({{ product.id }})"
+                                                        type="button">Изменить
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+    <script>
+        function DelProduct(product_id) {
+            let data = {}
+            data.product_id = product_id
+            console.log(data.product_id);
+            $.ajax({
+                url: '{{ url_for('del_admin_product') }}', // добавляем url, откуда будем брать данные
+                method: 'get', // указываем метод
+                dataType: 'html', // тип данных
+                data: data, // данные запроса (в данном случае, там находятся GET-параметры)
+                // функция, которая вызывается при успешном получении данных
+                success: function (data) {
+                    data = JSON.parse(data)
+                    $(data['id']).html('')
+                    location.reload()
+                }
+            })
+        }
+
+        function RedProduct(product_id) {
+            address = '/red_product/' + product_id.toString()
+            window.location.href = address
+
+        }
+    </script>
+{% endblock %}

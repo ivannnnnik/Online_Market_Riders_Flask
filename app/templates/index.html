@@ -1,24 +1,92 @@
 {% extends "layouts/base.html" %}
 {% block content %}
-    {% if products %}
-        <p>Всего товаров: {{ count_products }}</p>
-        {% for product in products %}
-           <div class="product-view-class" id="product-view-class-{{ product.id }}">
-                <div class="product-view"
-                     onclick="location.href = '{{ url_for("get_product", product_id=product.id) }}'">
-                    <p>{{ product.name }}</p>
-                    <p>{{ product.price }}</p>
-                    <p id="product-id">{{ product.id }}</p>
 
-                    <img class="product-photo" src="{{ product.photo }}" width="50%"
-                         height="auto">
-                </div>
-                <p><input id="btn-add-cart" onclick="AddInCart({{ product.id }})" type="button" value="В корзину"></p>
-                <p><input type="button" onclick="AddInFav({{ product.id }})" value="В избранное"></p>
+    {% if status %}
+        <div class="uk-position-center">
+            <h1 class="uk-heading-medium">К сожалению, товаров не нашлось</h1>
+            <input name="action-1" onclick="window.location.href='/';" class="btn btn-primary"
+                   type="button" id="btn-back-in-first" value="Вернуться на главную"/>
+        </div>
+    {% endif %}
+    {% if products %}
+        <div class="cart-product-default"
+             xmlns="http://www.w3.org/1999/html">
+            <form action="{{ url_for('index') }}" method="post" id="search-form-2">
+                <fieldset class="uk-fieldset">
+                    <div class="uk-position-top-center" id="cart-position-default">
+                        <div id="search-bar">
+                            <div>
+                                <input class="uk-input" name="min" type="number" min="0" placeholder="От ₽"
+                                       aria-label="Input">
+                                <input class="uk-input" name="max" type="number" min="0" placeholder="До ₽"
+                                       aria-label="Input">
+                            </div>
+                        </div>
+                        <div id="drop-bar-category">
+                            <select name="type_product" class="uk-select" aria-label="Select">
+                                <option selected="selected">Выберите категорию</option>
+                                <option>Самокат</option>
+                                <option>Велосипед</option>
+                                <option>Мопед</option>
+                                <option>Электросамокат</option>
+                                <option>Электровелосипед</option>
+                                <option>Электромопед</option>
+                            </select>
+                        </div>
+                        <div>
+                            <input class="btn btn-primary" id="btn-submit"
+                                   type="submit" value="Найти"/>
+
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+        <div class="container px-21 text-center" id="container-products">
+            <div class="row row-cols-4 g-2 g-lg-3 uk-margin">
+                {% for product in products %}
+                    <div class="product-card-view">
+                        <div class="col px-2 pb-5">
+                            <div class="card pointer border-0 text-center">
+                                <div class="fav d-flex justify-content-center align-items-center">
+                                    <div class="product-view">
+                                        <div id="product-view"
+                                             onclick="location.href = '{{ url_for("get_product", product_id=product.id) }}'">
+                                            <picture>
+                                                <img id="img-product" src="{{ product.photo }}"
+                                              alt="">
+                                            </picture>
+                                        </div>
+
+                                        <div id="product-view-class-{{ product.id }}">
+
+                                            <div class="uk-panel uk-text-nowrap">
+                                                <p>{{ product.name | hidden_product_format }}</p>
+                                            </div>
+                                            <p>{{ product.price | price_format }}</p>
+                                            <p hidden id="product-id">{{ product.id }}</p>
+                                            <div class="d-grid gap-2 col-6 mx-auto">
+                                                <button class="btn btn-primary" id="btn_cart"
+
+                                                        onclick="AddInCart({{ product.id }})" type="button">В корзину
+                                                </button>
+                                                <button class="btn btn-primary" onclick="AddInFav({{ product.id }})"
+                                                        type="button">В избранное
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
-        {% endfor %}
+        </div>
     {% endif %}
     <script>
+
         function AddInCart(product_id) {
             let data = {}
             data.product_id = product_id
@@ -31,17 +99,26 @@
                 // функция, которая вызывается при успешном получении данных
                 success: function (data) {
                     data = JSON.parse(data)
-                    if(data['response'] == true){
-                        alert('Товар добавлен в корзину !')
-                    }else if(data['response'] == false){
-                        alert('Товар уже находится в корзине !')
-                    }else if(data['response'] == 'Not auth'){
-                        alert('Авторизуйтесь, чтобы добавить товар в корзину !')
+                    if (data['response'] == true) {
+                        UIkit.notification({message: ' Товар добавлен в корзину', status: 'success', timeout: 1000})
+                    } else if (data['response'] == false) {
+                        UIkit.notification({
+                            message: ' Товар уже находится в корзине',
+                            status: 'primary',
+                            timeout: 1000
+                        })
+                    } else if (data['response'] == 'Not auth') {
+                        UIkit.notification({
+                            message: ' Авторизуйтесь, чтобы добавить товар в корзину',
+                            status: 'warning',
+                            timeout: 1000
+                        })
                     }
                 }
             })
         }
-                function AddInFav(product_id) {
+
+        function AddInFav(product_id) {
             let data = {}
             data.product_id = product_id
             console.log(data.product_id);
@@ -53,11 +130,22 @@
                 // функция, которая вызывается при успешном получении данных
                 success: function (data) {
                     data = JSON.parse(data)
-                    if(data['response'] == false){
-                        alert('Товар уже в избранном !')
-                    }else if(data['response'] == 'Not auth'){
-                         alert('Авторизуйтесь, чтобы добавить товар в избранное !')
+                    if (data['response'] == true) {
+                        UIkit.notification({message: ' Товар добавлен в избранное', status: 'success', timeout: 1000})
+                    } else if (data['response'] == false) {
+                        UIkit.notification({
+                            message: ' Товар уже находится в избранном',
+                            status: 'primary',
+                            timeout: 1000
+                        })
+                    } else if (data['response'] == 'Not auth') {
+                        UIkit.notification({
+                            message: ' Авторизуйтесь, чтобы добавить товар в избранное',
+                            status: 'warning',
+                            timeout: 1000
+                        })
                     }
+
                 }
             })
         }
@@ -65,7 +153,4 @@
 
     </script>
 
-    {% if status %}
-        <p>{{ status }}</p>
-    {% endif %}
 {% endblock %}

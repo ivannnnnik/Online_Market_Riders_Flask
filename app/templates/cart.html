@@ -1,49 +1,107 @@
 {% extends 'layouts/base.html' %}
 {% block content %}
     {% if status %}
-        <div class="relink-in-products">
-            <p><input id="relink-button-product" onclick="window.location = '/';" type="button"
-                      value="Перейти к товарам"></p>
+        <div class="uk-card uk-position-top-center" id="alert-product">
+            <h1 class="uk-heading-line uk-text-center">
+                <span>
+                        Корзина пуста
+                </span>
+            </h1>
         </div>
-    {% endif %}
-    {% if products %}
+        <div class="uk-card uk-position-center" id="products-card-relink">
+
+            <div class="create-order">
+                <p><input id="form-an-order" onclick="window.location = '/';" type="button"
+                          value="Перейти к товарам" class="btn btn-primary"></p>
+            </div>
+        </div>
+    {% else %}
         {% for product in products %}
-            <div class="product-view-class" id="product-view-class-{{ product.id }}">
-                <div class="product-view"
-                     onclick="location.href = '{{ url_for("get_product", product_id=product.id) }}'">
-                    <p>{{ product.name }}</p>
-                    <p>{{ product.price }}</p>
-                    <img class="product-photo" src="{{ product.photo }}" width="50%"
-                         height="auto">
+            <div class="uk-flex uk-flex-column uk-flex-wrap-stretch" id="product-view-class-{{ product.id }}"
+                 style="max-width: 950px;">
+                <div class="uk-card" id="product-cart-cart">
+                    <div class="uk-text-center uk-grid-small" uk-grid>
+                        <div class="uk-width-1-4">
+                            <div class="uk-card uk-card-default uk-card-body">
+                                <div class="uk-height-small" id="form-red-order">
+                                    <div class="uk-position-center-left" id="card-add-price">
+                                        <p><input id="btn-in-cart-{{ product.id }}"
+                                                  onclick="AddInOrder({{ product.price }}, {{ product.id }})"
+                                                  type="checkbox" class="form-check-input" checked></p>
+                                    </div>
+                                    <div class="uk-position-center"
+                                         onclick="location.href = '{{ url_for("get_product", product_id=product.id) }}'">
+                                        <picture>
+                                            <img src="{{ product.photo }}" id="img-product-s"
+                                                  alt="">
+                                        </picture>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="uk-width-3-4">
+                            <div class="uk-card uk-card-default uk-card-body ">
+                                <div class="uk-height-small" id="card-product-name">
+                                    <div class="uk-position-top-left" id="product-name-text">
+                                        <p>{{ product.name | hidden_product_format }}</p>
+                                    </div>
+                                    <div class="uk-position-bottom-left" id="btn-del-in-cart">
+                                        <button type="button" id="btn-del-cart"
+                                                onclick="DelInCart({{ product.id }}, {{ product.price }})"
+                                                class="btn btn-primary">Удалить
+                                        </button>
+                                        <button type="button" id="btn-del-fav" onclick="AddInFav({{ product.id }})"
+                                                class="btn btn-primary">В избранное
+                                        </button>
+                                    </div>
+                                    <div class="uk-position-center" id="product-price-for-id">
+                                        <span>
+                                            <span id="product-price-{{ product.id }}">{{ product.price }}
+                                            </span> ₽
+                                        </span>
+                                    </div>
+                                    <p hidden id="product-id">{{ product.id }}</p>
+                                    <div class="uk-position-center-right uk-overlay uk-overlay-default"
+                                         id="block-buttons">
+                                        <div class="uk-position-center">
+                                            <input type="button" id="btn-count-+" value="+"
+                                                   onclick="CorCount({{ product.id }}, {{ product.price }}, true)"
+                                                   class="btn btn-primary"
+                                            >
+                                            <p class=count-product-in-cart" id="count-product-{{ product.id }}" type="number" value="1"
+                                               style="width:40px; margin-top: 12px">1</p>
+                                            <input type="button" id="btn-count--"
+                                                   onclick="CorCount({{ product.id }}, {{ product.price }}, false)"
+                                                   class="btn btn-primary" value="-">
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <label
-                <p><input id="btn-in-cart-{{ product.id }}" onclick="AddInOrder({{ product.price }}, {{ product.id }})"
-                          type="checkbox" checked></p>
-                <p><input id="btn-del-cart" onclick="DelInCart({{ product.id }}, {{ product.price }})" type="button"
-                          value="Удалить"></p>
-                <p><input id="btn-del-fav" onclick="AddInFav({{ product.id }})" type="button" value="В избранное"></p>
-                <p><input id="btn-count-+" onclick="CorCount({{ product.id }}, {{ product.price }}, true)" type="button"
-                          value="+"></p>
-                <p>Количество: </p>
-                <p id="count-product-{{ product.id }}">1</p>
-                <p><input id="btn-count--" onclick="CorCount({{ product.id }}, {{ product.price }}, false)"
-                          type="button" value="-"></p>
             </div>
         {% endfor %}
-        <div class="price" id="price-order-cart">
-            <div class="price-view-cart">
-                <p>Общая стоимость: </p>
-                <p id="final-cart-price">{{ final_price }}</p>
+        <div class="uk-card uk-position-right" id="products-card-relink-4">
+            <div class="create-order">
+                <p><input id="form-an-order" onclick="CorOrder()" type="button"
+                          value="Сформировать заказ" class="btn btn-primary"></p>
             </div>
-        </div>
-        <div class="create-order">
-            <p><input id="form-an-order" onclick="CorOrder()" type="button"
-                      value="Сформировать заказ"></p>
+            <div class="uk-width-1-3">
+                <div class="uk-card uk-position-top-center" id="cart-1-3--5">
+                    <div class="price" id="price-order-cart">
+                        <div class="price-view-cart">
+                            <div>
+                                <h3><span><span id="final-cart-price">{{ final_price }}</span> ₽</span></h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     {% endif %}
     <script>
-        let list_product_order = [];
-
         function CorOrder(user_id) {
             /// получаю id всех товаров из бд
             /// просматриваю btn.checked и id.count
@@ -93,16 +151,24 @@
         function CorCount(product_id, product_price, status) {
             let pathcount = 'count-product-' + product_id;
             let pathbtn = 'btn-in-cart-' + product_id;
+            let pathprice = '#product-price-' + product_id;
+            let pathpricehtml = 'product-price-' + product_id;
+
             let btnincart = document.getElementById(pathbtn)
             let countprod = Number(document.getElementById(pathcount).innerText);
             let finalprice = Number($("#final-cart-price").html());
-            let productprice = Number(product_price);
 
+            console.log(finalprice)
+            let finalpriceproduct = Number($(pathprice).html());
+            console.log(finalpriceproduct)
+            let productprice = Number(product_price);
             if (status == true) {
                 countprod += 1;
                 document.getElementById(pathcount).innerHTML = countprod;
                 console.log(btnincart.checked)
                 finalprice += productprice;
+                finalpriceproduct += productprice
+                document.getElementById(pathpricehtml).innerHTML = finalpriceproduct;
                 if (btnincart.checked == true) {
                     document.getElementById('final-cart-price').innerHTML = finalprice;
                 }
@@ -113,8 +179,11 @@
                     countprod = 1;
                 } else {
                     countprod -= 1;
+
                     finalprice -= productprice;
                     document.getElementById(pathcount).innerHTML = countprod;
+                    finalpriceproduct -= productprice
+                    document.getElementById(pathpricehtml).innerHTML = finalpriceproduct;
                     if (btnincart.checked == true) {
                         document.getElementById('final-cart-price').innerHTML = finalprice;
                     }
@@ -141,12 +210,16 @@
         }
 
         function DelInCart(product_id, product_price) {
+            let pathbtn = 'btn-in-cart-' + product_id;
             let pathcount = 'count-product-' + product_id;
+            let btnincart = document.getElementById(pathbtn);
             let countprod = Number(document.getElementById(pathcount).innerText);
             let finalprice = Number($("#final-cart-price").html());
             let productprice = Number(product_price) * countprod;
-            finalprice -= productprice
-            document.getElementById('final-cart-price').innerHTML = finalprice;
+            if (btnincart.checked == true) {
+                finalprice -= productprice;
+                document.getElementById('final-cart-price').innerHTML = finalprice;
+            }
             let data = {}
             data.product_id = product_id
             $.ajax({
@@ -160,9 +233,7 @@
                     console.log(data['products']);
                     if (data['products'] == 0) {
                         $(data['id']).html('');
-                        $('#price-order-cart').html('');
-                        $('#form-an-order').val('Перейти к товарам');
-                        document.getElementById("form-an-order").setAttribute("onClick", "window.location = '/';");
+                        location.reload();
 
                     } else {
                         $(data['id']).html('');
@@ -183,8 +254,20 @@
                 // функция, которая вызывается при успешном получении данных
                 success: function (data) {
                     data = JSON.parse(data)
-                    if (data['response'] == false) {
-                        alert('Товар уже в избранном !')
+                    if (data['response'] == true) {
+                        UIkit.notification({message: ' Товар добавлен в избранное', status: 'success', timeout: 1000})
+                    } else if (data['response'] == false) {
+                        UIkit.notification({
+                            message: ' Товар уже находится в избранном',
+                            status: 'primary',
+                            timeout: 1000
+                        })
+                    } else if (data['response'] == 'Not auth') {
+                        UIkit.notification({
+                            message: ' Авторизуйтесь, чтобы добавить товар в избранное',
+                            status: 'warning',
+                            timeout: 1000
+                        })
                     }
                 }
             })

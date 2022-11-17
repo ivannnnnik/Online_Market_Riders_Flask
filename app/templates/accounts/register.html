@@ -2,13 +2,46 @@
 
 {% block content %}
     {% if status %}
-        <p>{{ status }}</p>
+        <div class="uk-alert-danger" uk-alert>
+            <a class="uk-alert-close" uk-close></a>
+            <div class="uk-text-center">
+                <h5><p>
+                    {{ status | price_format }}
+                </p></h5>
+            </div>
+        </div>
     {% endif %}
-    <form action="/registration" method="post" class="registr">
-        {{ form.hidden_tag() }}
-        <label>{{ form.username.label }} {{ form.username }}</label>
-        <label>{{ form.email.label }} {{ form.email }}</label>
-        <label>{{ form.password.label }} {{ form.password }}</label>
-        <label>{{ form.submit }}</label>
-    </form>
+    <div class="reg-cl">
+        <form action="/registration" method="post" class="registr">
+            <div class="uk-margin">
+                <div class="uk-inline">
+                    <span class="uk-form-icon" uk-icon="icon: user"></span>
+                    <input class="uk-input" type="text" placeholder="Имя"
+                           name="name"
+                           aria-label="Not clickable icon">
+                </div>
+            </div>
+            <div class="uk-margin">
+                <div class="uk-inline">
+                    <span class="uk-form-icon" uk-icon="icon: user"></span>
+                    <input class="uk-input" type="email" placeholder="Email"
+                           name="email"
+                           aria-label="Not clickable icon">
+                </div>
+            </div>
+            <div class="uk-margin">
+                <div class="uk-inline">
+                    <span class="uk-form-icon" uk-icon="icon: lock"></span>
+                    <input class="uk-input" maxlength="35" minlength="8" type="password"
+                           placeholder="Пароль" name="password"
+                           aria-label="Not clickable icon">
+                </div>
+            </div>
+
+            <div class="uk-margin">
+                <label><input id="submit" class="uk-button uk-button-default" name="submit"
+                              type="submit" value="Отправить" style="width: 240px"></label>
+            </div>
+        </form>
+    </div>
 {% endblock %}

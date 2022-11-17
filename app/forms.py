@@ -28,6 +28,22 @@ class AuthForm(FlaskForm):
     remember = BooleanField('Запомнить меня: ')
     submit = SubmitField("Отправить")
 
+    class UpdateUserForm(FlaskForm):
+        email = StringField("Email: ", validators=[Email('Некорректный Email')])
+        old_password = PasswordField("Старый пароль: ", validators=[DataRequired(),
+                                                             Length(min=8,
+                                                                    max=25,
+                                                                    message='Пароль должен быть от 8 до 25 символов')
+                                                             ]
+                                     )
+        new_password = PasswordField("Новый пароль: ", validators=[DataRequired(),
+                                                             Length(min=8,
+                                                                    max=25,
+                                                                    message='Пароль должен быть от 8 до 25 символов')
+                                                             ]
+                                     )
+        submit = SubmitField("Изменить данные")
+
 
 class CreateProduct(FlaskForm):
     name = StringField("Название: ", validators=[DataRequired()])

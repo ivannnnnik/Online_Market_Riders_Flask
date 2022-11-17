@@ -1,0 +1,22 @@
+#card-1-2-st {
+    border: 1px solid #e8e8e8;
+}
+
+#img-media {
+    max-width: 350px;
+    max-height: 350px;
+}
+
+#card-pr-bx-sh {
+    box-shadow: 0px 0px 20px 1px #b9d8ff;
+}
+
+#text-for-prod {
+    overflow: auto;
+    width: 270px;
+    height: 370px;
+}
+
+#text-price-center {
+    text-align: center
+}

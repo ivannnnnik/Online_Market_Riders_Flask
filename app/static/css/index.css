@@ -1,59 +1,43 @@
-body {
-    background-color: #b4e6ff;
+#img-product {
+    max-height: 300px;
+    max-width: 300px;
 }
 
-.logo {
-    float: left;
+#product-view {
+    width: 350px;
+    height: 300px;
 }
 
-nav {
-    float: inherit;
+#btn-back-in-first {
+    margin-left: 400px;
+    margin-top: 20px;
+    width: 220px;
 }
 
-.search-input {
-    float: inherit;
-    height: 25px;
-    font-weight: normal;
-    margin: 5px;
-}
-
-nav ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-nav li {
-    display: inline-block; /*один из способов разместить элементы в строку*/
-}
-
-.container:after {
-    content: "";
-    display: table;
-    clear: both;
-}
-
-.container {
+.cart-product-default {
     width: 100%;
-    padding: 15px;
-    margin: 0 auto;
-    background-color: #6eb7ff;
+    height: 180px;
+    border: #0f6ecd;
+    background-color: #ffffff;
 }
 
-nav a {
-    text-decoration: none;
-    line-height: 38px;
+#cart-position-default {
+    margin-top: 80px;
 }
 
-div.product-view {
-    background-color: aquamarine;
-    border: 1px solid #000;
-    margin: 10px;
-    width: 400px;
-    padding: 10px;
+#search-bar {
+    width: 200px;
+
 }
 
-img.product-photo {
-    width: 50%;
-    height: auto;
+#drop-bar-category {
+    width: 200px;
+    margin-top: 5px;
+}
+
+#btn-submit {
+    width: 200px;
+}
+#container-products {
+    margin-top: 15px
 }

@@ -1,30 +1,90 @@
 {% extends 'layouts/base.html' %}
 {% block content %}
     {% if status %}
-        <p>{{ status }}</p>
+        <div class="uk-card uk-position-top-center" id="alert-product">
+            <h1 class="uk-heading-line uk-text-center">
+                <span>
+                    Список покупок пуст
+                </span>
+            </h1>
+        </div>
+        <div class="uk-card uk-position-center" id="products-card-relink">
+
+            <div class="create-order">
+                <p><input id="form-an-order" onclick="window.location = '/';" type="button"
+                          value="Перейти к товарам" class="btn btn-primary"></p>
+            </div>
+        </div>
     {% else %}
-        {% for products in purchases_products %}
-            <div class="contain-for-prod">
-                {% for product in products[::-1] %}
-                    {%- if loop.index0 != 0 %}
-                        <div class="product-view-class" id="product-view-class-{{ product.id }}">
-                            <div class="product-view"
-                                 onclick="location.href = '{{ url_for("get_product", product_id=product.id) }}'">
-                                <p>{{ product.name }}</p>
-                                <p>{{ product.final_price }}</p>
-                                <p>{{ product.date_month }}</p>
-                                <p>{{ product.date_day }}</p>
-                                <p>{{ product.date_time }}</p>
-                                <img class="product-photo" src="{{ product.photo }}" width="50%"
-                                     height="auto">
+        {% for products in purchases_products[::-1] %}
+            {% if products|length > 2 %}
+                <div class="contain-for-prod" id="product-price-{{ loop.index0 }}"
+                     onclick="location.href = '{{ url_for("get_products_user_purchase", purchase_id=loop.index0) }}'">
+                    <div class="contain-for-prod" id="product-price-{{ loop.index0 }}">
+                        <div>
+                            <div class="uk-text-center uk-grid-small" uk-grid>
+                                <div class="uk-width-3-4" id="card-3-4">
+                                    <div class="uk-card uk-card-default uk-card-body ">
+                                        <div>
+                                            <div class="uk-position-top-left" id="card-pos-top-left">
+                                                <h5 class="uk-text-left"><span>Заказ от
+                                                <span>
+                                                    {{ products[0]['date_day'] }}.
+                                                    {{ products[0]['date_month'] }}. 2022
+                                                    {{ products[0]['date_time'] }}
+                                                </span>
+                                            </span></h5>
+                                            </div>
+                                        </div>
+                                        <div class="uk-height-small" id="text-price">
+                                            <h5 class="uk-text">
+                                                    <span>
+                                                        Оплачено: {{ products[-1] | price_format }}
+                                                    </span>
+                                            </h5>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    {% else %}
-                        <p>Сумма: {{ product }}</p>
-                    {% endif %}
-                {% endfor %}
-
-            </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="contain-for-prod"
+                     onclick="location.href = '{{ url_for("get_products_user_purchase", purchase_id=loop.index0) }}'">
+                    <div class="uk-text-center uk-grid-small" uk-grid>
+                        <div class="uk-width-3-4" id="card-w-3-4">
+                            <div class="uk-card uk-card-default uk-card-body ">
+                                <div class="uk-height-small" style="height: 60px">
+                                    <div>
+                                        {% for product in products %}
+                                            {% if loop.index0 == 1 %}
+                                                <h5 class="uk-text">
+                                                    <span>
+                                                        Оплачено: {{ product }} ₽
+                                                    </span>
+                                                </h5>
+                                            {% else %}
+                                                <div class="uk-position-top-left" id="order-data">
+                                                    <h5 class="uk-text-left">
+                                                    <span>Заказ от
+                                                        <span id="product-price">
+                                                            {{ product['date_day'] }}.
+                                                            {{ product['date_month'] }}. 2022
+                                                            {{ product['date_time'] }}
+                                                        </span>
+                                                    </span>
+                                                    </h5>
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
         {% endfor %}
     {% endif %}
 {% endblock %}

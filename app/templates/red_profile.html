@@ -1,0 +1,59 @@
+{% extends 'layouts/base.html' %}
+{% block content %}
+    {% if status_false %}
+        <div class="uk-alert-danger" uk-alert>
+            <a class="uk-alert-close" uk-close></a>
+            <div class="uk-text-center">
+                <h5><p>
+                    {{ status_false }}
+                </p></h5>
+            </div>
+        </div>
+    {% elif status_true %}
+        <div class="uk-alert-success" uk-alert>
+            <a class="uk-alert-close" uk-close></a>
+            <div class="uk-text-center">
+                <h5><p>
+                    {{ status_true }}
+                </p></h5>
+            </div>
+        </div>
+    {% endif %}
+    <form action="/update_user_profile" method="post" class="red_user_data" enctype="multipart/form-data">
+        <div class="uk-position-top-center" id="position-card">
+            <div class="uk-margin">
+                <div class="uk-inline">
+                    <span class="uk-form-icon" uk-icon="icon: user"></span>
+                    <input class="uk-input" maxlength="25" minlength="3" type="text" placeholder="Имя" name="name"
+                           value="{{ context.name }}"
+                           aria-label="Not clickable icon">
+                </div>
+            </div>
+            <div class="uk-margin">
+                <div class="uk-inline">
+                    <span class="uk-form-icon uk-form-icon-flip" uk-icon="icon: lock"></span>
+                    <input class="uk-input" maxlength="35" minlength="8" id="old_password" name="old_password"
+                           placeholder="Старый пароль"
+                           type="password"
+                           aria-label="Not clickable icon">
+                </div>
+            </div>
+            <div class="uk-margin">
+                <div class="uk-inline">
+                    <span class="uk-form-icon uk-form-icon-flip" uk-icon="icon: lock"></span>
+                    <input class="uk-input" maxlength="35" minlength="8" id="new_password" name="new_password"
+                           placeholder="Новый пароль"
+                           type="password"
+                           aria-label="Not clickable icon">
+                </div>
+            </div>
+            <label><input id="submit" class="uk-button uk-button-default" name="submit" type="submit"
+                          value="Изменить Данные" style="width: 240px"></label>
+            <div class="uk-margin">
+                <label><input id="submit" class="uk-button uk-button-default" name="submit"
+                              onclick="window.location.href = '/profile';" type="button"
+                              value="Вернуться к профилю" style="width: 240px"></label>
+            </div>
+        </div>
+    </form>
+{% endblock %}

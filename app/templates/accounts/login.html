@@ -2,24 +2,55 @@
 
 {% block content %}
     {% if status %}
-        <p>{{ status }}</p>
+        <div class="uk-alert-danger" uk-alert>
+            <a class="uk-alert-close" uk-close></a>
+            <div class="uk-text-center">
+                <h5><p>
+                    {{ status }}
+                </p></h5>
+            </div>
+        </div>
+    {% elif status_true %}
+        <div class="uk-alert-success" uk-alert>
+            <a class="uk-alert-close" uk-close></a>
+            <div class="uk-text-center">
+                <h5><p>
+                    {{ status_true}}
+                </p></h5>
+            </div>
+        </div>
     {% endif %}
-    <form action="/authorization" method="post" class="auth">
-        {{ form.hidden_tag() }}
-        {% for f in form if f.name not in ['csrf_token', 'remember', 'submit'] -%}
-            <label>{{ f.label() }}</label>
-            {% if f.errors %}
-                {{ f(class='invalid') }}
-            <span class="invalid-message">
-                {% for error in f.errors %}
-                    {{ error }}
-                {% endfor %}
-            </span>
-            {% else %}
-                {{ f() }}
-            {% endif %}
-        {% endfor %}
-        <label>{{ form.remember.label }} {{ form.remember }}</label>
-        <label>{{ form.submit }}</label>
-    </form>
+    <div id="block-login">
+        <form action="/authorization" method="post" class="auth">
+            <div class="uk-margin">
+                <div class="uk-inline">
+                    <span class="uk-form-icon" uk-icon="icon: user"></span>
+                    <input class="uk-input" type="email" placeholder="Email"
+                           name="email"
+                           aria-label="Not clickable icon">
+                </div>
+            </div>
+            <div class="uk-margin">
+                <div class="uk-inline">
+                    <span class="uk-form-icon" uk-icon="icon: lock"></span>
+                    <input class="uk-input" maxlength="35" minlength="8" type="password"
+                           placeholder="Пароль" name="password"
+                           aria-label="Not clickable icon">
+                </div>
+            </div>
+            <div class="uk-margin">
+                <div class="form-check">
+                    <input class="form-check-input" name="check" type="checkbox" value="" id="flexCheckDefault">
+                    <label class="form-check-label" for="flexCheckDefault">
+                        Запомнить меня
+                    </label>
+                </div>
+            </div>
+            <div class="uk-margin">
+                <label><input id="submit" class="uk-button uk-button-default" name="submit"
+                              type="submit" value="Войти" style="width: 240px"></label>
+            </div>
+        </form>
+    </div>
 {% endblock %}
+

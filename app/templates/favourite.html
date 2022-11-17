@@ -1,26 +1,65 @@
-
 {% extends 'layouts/base.html' %}
-{%  block content %}
+{% block content %}
     {% if status %}
-        <p>{{ status }}</p>
+        <div class="uk-card uk-position-top-center" id="cart-alert-fav">
+            <h1 class="uk-heading-line uk-text-center">
+                <span>
+                        Избранное пусто
+                </span>
+            </h1>
+        </div>
+        <div class="uk-card uk-position-center" id="products-card-relink">
+
+            <div class="create-order">
+                <p><input id="form-an-order" onclick="window.location = '/';" type="button"
+                          value="Перейти к товарам" class="btn btn-primary"></p>
+            </div>
+        </div>
     {% endif %}
     {% if products %}
-        {% for product in products %}
-           <div class="product-view-class" id="product-view-class-{{ product.id }}">
-                <div class="product-view"
-                     onclick="location.href = '{{ url_for("get_product", product_id=product.id) }}'">
-                    <p>{{ product.name }}</p>
-                    <p>{{ product.price }}</p>
-                    <img class="product-photo" src="{{ product.photo }}" width="50%"
-                         height="auto">
-                </div>
-           <p><input id="btn-del-cart" onclick="DelInFav({{ product.id }})" type="button" value="Удалить"></p>
-           <p><input id="btn-add-cart" onclick="AddInCart({{ product.id }})" type="button" value="В корзину"></p>
+        <div class="container px-21 text-center">
+            <div class="row row-cols-4 g-2 g-lg-3 uk-margin">
+                {% for product in products %}
+                    <div class="product-card-view">
+                        <div class="col px-2 pb-5">
+                            <div class="card pointer border-0 text-center">
+                                <div class="fav d-flex justify-content-center align-items-center">
+                                    <div class="product-view">
+                                        <div id="product-image-view"
+                                             onclick="location.href = '{{ url_for("get_product", product_id=product.id) }}'">
+                                            <picture>
+                                                <img src="{{ product.photo }}" id="img-style"
+                                                  alt="">
+                                            </picture>
+                                        </div>
+                                        <div id="product-view-class-{{ product.id }}">
+                                            <div class="uk-panel uk-text-truncate">
+                                                <span class="uk-text-emphasis">{{ product.name | hidden_product_format }}</span>
+                                            </div>
+                                            <p>{{ product.price | price_format}} </p>
+                                            <p hidden id="product-id">{{ product.id }}</p>
+                                            <div class="d-grid gap-2 col-6 mx-auto">
+                                                <button class="btn btn-primary" id="btn_cart"
+
+                                                        onclick="DelInFav({{ product.id }})" type="button">Удалить
+                                                </button>
+                                                <button class="btn btn-primary" onclick="AddInCart({{ product.id }})"
+                                                        type="button">В корзину
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
-        {% endfor %}
+        </div>
     {% endif %}
     <script>
-    function AddInCart(product_id) {
+        function AddInCart(product_id) {
             let data = {}
             data.product_id = product_id
             console.log(data.product_id);
@@ -32,14 +71,25 @@
                 // функция, которая вызывается при успешном получении данных
                 success: function (data) {
                     data = JSON.parse(data)
-                    if(data['response']){
-                        alert('Товар добавлен в корзину !')
-                    }else{
-                        alert('Товар ужа находится в корзине !')
+                    if (data['response'] == true) {
+                        UIkit.notification({message: ' Товар добавлен в корзину', status: 'success', timeout: 1000})
+                    } else if (data['response'] == false) {
+                        UIkit.notification({
+                            message: ' Товар уже находится в корзине',
+                            status: 'primary',
+                            timeout: 1000
+                        })
+                    } else if (data['response'] == 'Not auth') {
+                        UIkit.notification({
+                            message: ' Авторизуйтесь, чтобы добавить товар в корзину',
+                            status: 'warning',
+                            timeout: 1000
+                        })
                     }
                 }
             })
         }
+
         function DelInFav(product_id) {
             let data = {}
             data.product_id = product_id
@@ -52,7 +102,9 @@
                 // функция, которая вызывается при успешном получении данных
                 success: function (data) {
                     data = JSON.parse(data)
+                    location.reload()
                     $(data['id']).html('')
+
                 }
             })
         }

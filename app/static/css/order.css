@@ -1,0 +1,51 @@
+#alert-product-card {
+    margin-top: 200px
+}
+
+#back-in-prod {
+    margin-left: 200px;
+    margin-top: 20px;
+    width: 220px;
+}
+
+#back-in-tov {
+    margin-left: 140px;
+    margin-top: 20px;
+    width: 220px;
+}
+
+#back-in-cart {
+    margin-left: 13px;
+    width: 220px;
+}
+
+#default-cart {
+    margin-left: 12px;
+    margin-top: 15px;
+}
+
+#ccard-small {
+    height: 60px;
+    color: #9C1A1C;
+}
+
+#product-photo-i {
+    max-height: 130px;
+    max-width: 170px;
+    border-radius: 5%;
+}
+
+#cart-po-left {
+    margin-top: 5px;
+    margin-left: 5px
+}
+
+#price-center {
+    margin-bottom: 10px;
+    margin-left: 95px
+}
+
+#products-card-relink-6 {
+    margin-top:100px;
+    margin-right: 150px;
+}

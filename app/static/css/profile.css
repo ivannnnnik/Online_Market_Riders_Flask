@@ -1,0 +1,20 @@
+#block-profile-view {
+    margin-top: 180px;
+}
+
+#button-block {
+    margin-top: 100px;
+}
+
+#button-red-prof {
+    width: 230px;
+}
+
+#button-del-prof {
+    margin-top: 10px;
+    width: 230px;
+}
+
+#btn-delete-ac {
+    background-color: #ff2d2f
+}

@@ -1,10 +1,107 @@
 {% extends 'layouts/base.html' %}
 {% block content %}
-    <div class="product-view">
-        <p>{{ product.name }}</p>
-        <p>{{ product.created_at }}</p>
-        <p>{{ product.price }}</p>
-        <p>{{ product.count }}</p>
-        <p>{{ product.type }}</p>
+    <h2 class="uk-heading-line uk-text-center"><span>{{ product.name }}</span></h2>
+    <div class="uk-card uk-card-default uk-grid-collapse uk-child-width-1-2@s uk-margin" id="card-1-2-st" uk-grid>
+        <div class="uk-card-media-left uk-cover-container">
+            <img src="../{{ product.photo }}" id="img-media" alt="" uk-cover>
+            <canvas width="600" height="400"></canvas>
+        </div>
+        <div>
+            <div class="uk-card-body uk-width-1">
+                <div class="uk-text-left" uk-grid>
+                    <div class="uk-width-1-2">
+                        <div class="uk-card uk-height-large uk-card-default uk-card-body" id="card-pr-bx-sh">
+                            <div class="uk-panel uk-text-break">
+                                <p><span class="uk-text-bolder">Тип товара:</span> {{ product.type }}</p>
+                                <div id="text-for-prod">
+                                    <p><span class="uk-text-bolder">Описание:</span> {{ product.text }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="uk-width-1-2">
+                        <div class="uk-card uk-height-large uk-card-default uk-card-body" id="card-pr-bx-sh">
+                            <div class="d-grid gap-2 col-12 mx-auto">
+                                <h2><p id="text-price-center"><span
+                                        class="uk-text-bolder">{{ product.price }} ₽</span></p></h2>
+                                <button class="btn btn-primary" id="btn_cart"
+                                        onclick="AddInCart({{ product.id }})" type="button">В корзину
+                                </button>
+                                <button class="btn btn-primary" onclick="AddInFav({{ product.id }})"
+                                        type="button">В избранное
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+    <script>
+        const bsButton = new bootstrap.Button('#btn_cart')
+
+        function AddInCart(product_id) {
+            let data = {}
+            data.product_id = product_id
+            console.log(data.product_id);
+            $.ajax({
+                url: '{{ url_for('add_in_cart_product') }}', // добавляем url, откуда будем брать данные
+                method: 'get', // указываем метод
+                dataType: 'html', // тип данных
+                data: data, // данные запроса (в данном случае, там находятся GET-параметры)
+                // функция, которая вызывается при успешном получении данных
+                success: function (data) {
+                    data = JSON.parse(data)
+                    if (data['response'] == true) {
+                        UIkit.notification({message: ' Товар добавлен в корзину', status: 'success', timeout: 1000})
+                    } else if (data['response'] == false) {
+                        UIkit.notification({
+                            message: ' Товар уже находится в корзине',
+                            status: 'primary',
+                            timeout: 1000
+                        })
+                    } else if (data['response'] == 'Not auth') {
+                        UIkit.notification({
+                            message: ' Авторизуйтесь, чтобы добавить товар в корзину',
+                            status: 'warning',
+                            timeout: 1000
+                        })
+                    }
+                }
+            })
+        }
+
+        function AddInFav(product_id) {
+            let data = {}
+            data.product_id = product_id
+            console.log(data.product_id);
+            $.ajax({
+                url: '{{ url_for('add_in_fav_product') }}', // добавляем url, откуда будем брать данные
+                method: 'get', // указываем метод
+                dataType: 'html', // тип данных
+                data: data, // данные запроса (в данном случае, там находятся GET-параметры)
+                // функция, которая вызывается при успешном получении данных
+                success: function (data) {
+                    data = JSON.parse(data)
+                    if (data['response'] == true) {
+                        UIkit.notification({message: ' Товар добавлен в избранное', status: 'success', timeout: 1000})
+                    } else if (data['response'] == false) {
+                        UIkit.notification({
+                            message: ' Товар уже находится в избранном',
+                            status: 'primary',
+                            timeout: 1000
+                        })
+                    } else if (data['response'] == 'Not auth') {
+                        UIkit.notification({
+                            message: ' Авторизуйтесь, чтобы добавить товар в избранное',
+                            status: 'warning',
+                            timeout: 1000
+                        })
+                    }
+                }
+            })
+        }
+
+
+    </script>
 {% endblock %}

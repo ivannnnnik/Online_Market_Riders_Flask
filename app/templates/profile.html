@@ -1,8 +1,60 @@
 {% extends 'layouts/base.html' %}
 {% block content %}
     <div class="profile-class">
-        <p>Имя: {{ context.username }}</p>
-        <p>Email: {{ context.email }}</p>
-
+        <div class="uk-position-top-center" id="block-profile-view">
+            <div class="uk-margin">
+                <div class="uk-inline">
+                    <span class="uk-form-icon" uk-icon="icon: user"></span>
+                    <input class="uk-input" maxlength="25" minlength="3" type="text" readonly placeholder="Имя"
+                           name="name"
+                           value="{{ context.username }}"
+                           aria-label="Not clickable icon">
+                </div>
+            </div>
+            <div class="uk-margin">
+                <div class="uk-inline">
+                    <span class="uk-form-icon" uk-icon="icon: user"></span>
+                    <input class="uk-input" type="text" name="name" readonly
+                           value="{{ context.email }}"
+                           aria-label="Not clickable icon">
+                </div>
+            </div>
+            <div class="uk-position-center" id="button-block">
+                <button class="uk-button uk-button-default" id="button-red-prof" onclick="RedUser()">Изменить данные</button>
+                <a class="uk-button uk-button-danger" id="button-del-prof" href="#modal-sections" uk-toggle>Удалить аккаунт</a>
+                <div id="modal-sections" uk-modal >
+                    <div class="uk-modal-dialog">
+                        <button class="uk-modal-close-default" type="button" uk-close></button>
+                        <div class="uk-modal-header">
+                            <h2 class="uk-modal-title">Вы уверены, что хотите удалить аккаунт?</h2>
+                        </div>
+                        <div class="uk-modal-footer uk-text-right">
+                            <button class="uk-button uk-button-default uk-modal-close" type="button">Отменить</button>
+                            <button class="uk-button uk-button-primary" id="btn-delete-ac"
+                                    onclick="DelUser()"
+                                    type="button">Удалить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <script>
+        function DelUser(user_id) {
+            $.ajax({
+                url: '{{ url_for('delete_profile_user') }}', // добавляем url, откуда будем брать данные
+                method: 'get', // указываем метод
+                dataType: 'html', // тип данных
+                success: function () {
+                    window.location.href = '/';
+                }
+            })
+        }
+
+        function RedUser() {
+            window.location.href = '{{ url_for('red_profile_user') }}'
+        }
+    </script>
 {% endblock %}

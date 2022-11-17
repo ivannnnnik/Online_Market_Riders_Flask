@@ -1,25 +1,59 @@
 {% extends 'layouts/base.html' %}
 {% block content %}
     {% if status %}
-        <p>{{ status }}</p>
+            {% if status %}
+        <div class="uk-card uk-position-top-center" id="cart-alert">
+            <h1 class="uk-heading-line uk-text-center">
+                <span>
+                        {{ status }}
+                </span>
+            </h1>
+        </div>
+        <div class="uk-card uk-position-center" id="products-card-relink">
+
+            <div class="create-order">
+                <p><input id="form-an-order" onclick="window.location = '/';" type="button"
+                          value="Перейти к товарам" class="btn btn-primary"></p>
+            </div>
+        </div>
+    {% endif %}
     {% endif %}
     {% if form %}
-        <form action="/new_product" method="post" class="new_prod" enctype="multipart/form-data">
-            {{ form.hidden_tag() }}
-            {% for f in form if f.name not in ['csrf_token', 'submit'] -%}
-                <label>{{ f.label() }}</label>
-                {% if f.errors %}
-                    {{ f(class='invalid') }}
-                <span class="invalid-message">
-                    {% for error in f.errors %}
-                        {{ error }}
-                    {% endfor %}
-                </span>
-                {% else %}
-                    {{ f() }}
-                {% endif %}
-            {% endfor %}
-            <label>{{ form.submit }}</label>
-        </form>
+        <div class="uk-flex uk-flex-column uk-width-1-3" id="flex-block-form">
+            <form action="/new_product" method="post" class="uk-form-stacked" enctype="multipart/form-data">
+                <fieldset class="uk-fieldset">
+                    <legend class="uk-legend">Создать новый товар</legend>
+                    <div class="uk-margin">
+                        <input class="uk-input" type="text" name="name" placeholder="Название" aria-label="Input">
+                    </div>
+                    <div class="uk-margin">
+                        <textarea class="uk-textarea" rows="5" name="text" placeholder="Textarea"
+                                  aria-label="Textarea"></textarea>
+                    </div>
+                    <div class="uk-margin">
+                        <input class="uk-input" type="number" name="price" placeholder="Цена" aria-label="Input">
+                    </div>
+                    <div class="uk-margin">
+                        <div uk-form-custom>
+                            <input type="file" aria-label="Custom controls" name="photo">
+                            <button class="uk-button uk-button-default" type="button" tabindex="-1">Select</button>
+                        </div>
+                    </div>
+                    <div class="uk-margin">
+                        <select id="type_product" class="uk-select" name="type_product">
+                            <option value="Самокат">Самокат</option>
+                            <option value="Велосипед">Велосипед</option>
+                            <option value="Мопед">Мопед</option>
+                            <option value="Электросамокат">Электросамокат</option>
+                            <option value="Электровелосипед">Электровелосипед</option>
+                            <option>Электромопед</option>
+                        </select>
+                    </div>
+                    <label><input id="submit" class="uk-button uk-button-default" name="submit" type="submit"
+                                  value="Создать"></label>
+                </fieldset>
+
+            </form>
+        </div>
     {% endif %}
 {% endblock %}

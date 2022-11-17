@@ -1,0 +1,62 @@
+{% extends 'layouts/base.html' %}
+{% block content %}
+    {% if status %}
+        <div class="uk-card uk-position-top-center" id="alert-product">
+            <h1 class="uk-heading-line uk-text-center">
+                <span>
+                        Товар успешно изменен
+                </span>
+            </h1>
+        </div>
+        <div class="uk-card uk-position-center" id="products-card-relink">
+
+            <div class="create-order">
+                <p><input id="form-an-order" onclick="window.location = '/';" type="button"
+                          value="Перейти к товарам" class="btn btn-primary"></p>
+            </div>
+        </div>
+    {% endif %}
+    <div class="uk-flex uk-flex-column uk-width-1-3" id="flex-column">
+        <form action="/update_product" method="post" class="uk-form-stacked" enctype="multipart/form-data">
+            <fieldset class="uk-fieldset">
+                <legend class="uk-legend">Редактировать товар</legend>
+                <div class="uk-margin">
+                    <label class="uk-form-label" for="form-stacked-text">Название</label>
+                    <input class="uk-input" type="text" name="name" value="{{ context.name }}" placeholder="Название"
+                           aria-label="Input">
+                </div>
+                <div class="uk-margin">
+                    <label class="uk-form-label" for="form-stacked-text">Описание</label>
+                    <textarea class="uk-textarea" rows="5" name="text" placeholder="Textarea"
+                              aria-label="Textarea">{{ context.text }}</textarea>
+                </div>
+                <input name="id" value="{{ context.id }}" hidden>
+                <div class="uk-margin">
+                    <label class="uk-form-label" for="form-stacked-text">Цена</label>
+                    <input class="uk-input" type="number" name="price" value="{{ context.price }}" placeholder="Цена"
+                           aria-label="Input">
+                </div>
+                <div class="uk-margin">
+                    <label class="uk-form-label" for="form-stacked-text">Фотография</label>
+                    <div uk-form-custom>
+                        <input type="file" aria-label="Custom controls" name="photo">
+                        <button class="uk-button uk-button-default" type="button" tabindex="-1">Загрузить</button>
+                    </div>
+                </div>
+                <div class="uk-margin">
+                    <label class="uk-form-label" for="form-stacked-text">Тип продукта</label>
+                    <select id="type_product" class="uk-select" name="type_product">
+                        <option value="{{ context.type_product }}" selected>Не изменять</option>
+                        <option value="Самокат">Самокат</option>
+                        <option value="Велосипед">Велосипед</option>
+                        <option value="Электросамокат">Электросамокат</option>
+                        <option value="Электровелосипед">Электровелосипед</option>
+                        <option value="Мопед">Мопед</option>
+                    </select>
+                </div>
+                <label><input id="submit" class="uk-button uk-button-default" name="submit" type="submit"
+                              value="Изменить"></label>
+            </fieldset>
+        </form>
+    </div>
+{% endblock %}
