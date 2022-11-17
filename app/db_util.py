@@ -31,6 +31,17 @@ class Database:
         self.con.commit()
         return True
 
+    def get_user_products(self, user_id):
+        query = f"SELECT * FROM products WHERE user_id={user_id} and status=True"
+        self.cur.execute(query)
+        result = self.cur.fetchall()
+        # print(result)
+        if result:
+            return self.prepare_data(result)
+        else:
+            print('Пользователь не найден!')
+            return False
+
     def get_user(self, user_id):
         query = f"SELECT * FROM users WHERE id={user_id} LIMIT 1"
         self.cur.execute(query)
