@@ -43,7 +43,22 @@ def user_orders():
         return render_template('user_orders.html', status=status)
 
 
-@app.route('/')
+@app.route('/admin_products')
+def admin_products():
+    user_id = current_user.get_id()
+    products = db.get_user_products(user_id)
+    # print(products)
+    if products:
+        context = {
+            'products': products,
+        }
+        return render_template('user_products.html', **context)
+    else:
+        status = 'У вас нет созданных товаров !'
+        return render_template('user_products.html', status=status)
+
+
+@app.route('/', methods=['GET', 'POST'])
 def index():
     products = db.get_products_all()
     if products:
