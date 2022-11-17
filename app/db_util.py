@@ -61,11 +61,11 @@ class Database:
             print('Пользователь не найден!')
             return False
 
-    def create_product(self, name, text, price, user_id, count, type_product, photo):
+    def create_product(self, name, text, price, user_id, type_product, photo):
         try:
-            self.cur.execute("INSERT INTO products (name, text, price, user_id, count, type, photo) "
+            self.cur.execute("INSERT INTO products (name, text, price, user_id, type, photo, status) "
                              "VALUES (%s, %s, %s, %s, %s, %s, %s)",
-                             (name, text, price, user_id, count, type_product, photo))
+                             (name, text, price, user_id, type_product, photo, True))
             print(f'Товар: {name} создан')
             self.con.commit()
             return True
@@ -92,7 +92,7 @@ class Database:
             return False
 
     def get_products_all(self):
-        self.cur.execute("SELECT * FROM products")
+        self.cur.execute("SELECT * FROM products WHERE status = True")
         result = self.cur.fetchall()
         if result:
             return self.prepare_data(result)
@@ -103,7 +103,7 @@ class Database:
     def last_id(self):
         self.cur.execute('SELECT max(id) FROM products')
         result = self.cur.fetchall()
-        print(result)
+        # print(result)
         if result[0][0] is None:
             return 0
         result = self.prepare_data(result)
@@ -125,6 +125,33 @@ class Database:
         else:
             print(f'Товар не добавлен!')
             return False
+
+    def update_product(self, product_id, name, text, price, type_product, photo):
+        try:
+            if name != '':
+                sql_query = "UPDATE products SET name=%s WHERE id=%s;"
+                self.cur.execute(sql_query, (name, product_id))
+                self.con.commit()
+            if text != '':
+                sql_query = "UPDATE products SET text=%s WHERE id=%s;"
+                self.cur.execute(sql_query, (text, product_id))
+                self.con.commit()
+            if price != '':
+                sql_query = "UPDATE products SET price=%s WHERE id=%s;"
+                self.cur.execute(sql_query, (price, product_id))
+                self.con.commit()
+            if type_product != '':
+                sql_query = "UPDATE products SET type=%s WHERE id=%s;"
+                self.cur.execute(sql_query, (type_product, product_id))
+                self.con.commit()
+            if photo != '':
+                sql_query = "UPDATE products SET photo=%s WHERE id=%s;"
+                self.cur.execute(sql_query, (photo, product_id))
+                self.con.commit()
+            print(f'Товар: {name} обновлен')
+            return True
+        except Exception as err:
+            print("cursor.execute() ERROR:", err)
 
     def user_cart(self, user_id):
         sql_query = "SELECT product_id FROM cart WHERE user_id = %s"
