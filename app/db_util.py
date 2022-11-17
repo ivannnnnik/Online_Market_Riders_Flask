@@ -304,6 +304,18 @@ class Database:
         result = True
         return result
 
+    def delete_product(self, product_id):
+        sql_query = "UPDATE products SET status=%s WHERE id=%s RETURNING id"
+        self.cur.execute(sql_query, (False, product_id))
+        self.con.commit()
+        result = self.cur.fetchall()
+        # print(result)
+        if result:
+            print(f'Удален : {product_id}')
+            return True
+        else:
+            return False
+
     def user_payment_products(self, user_id):
         # sql_query = "SELECT product_id, count FROM orders WHERE user_id = %s and check_product = %s"
         sql_query = "DELETE FROM orders WHERE user_id = %s and check_product = %s RETURNING product_id, count"
