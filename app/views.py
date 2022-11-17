@@ -124,11 +124,14 @@ def get_products_user_purchase(purchase_id):
 @app.route('/registration', methods=['POST', 'GET'])
 def register():
     form = forms.RegistrForm()
-    if form.validate_on_submit():
-        email = form.email.data
-        password = form.password.data
-        username = form.username.data
-        print(type(username))
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        username = request.form.get('name')
+        user = db.get_user_by_email(email)
+        email = str(email)
+        password = str(password)
+        username = str(username)
         result = db.create_user(username, email, generate_password_hash(password))
         if result is False:
             status = 'Пользователь с Email уже существует !'
